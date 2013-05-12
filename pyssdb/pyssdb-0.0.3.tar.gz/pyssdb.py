@@ -1,0 +1,183 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+'''
+pyssdb
+~~~~~~~
+
+A SSDB Client Library for Python.
+
+:copyright: (c) 2013 by Yue Du.
+:license: BSD 2-clause License, see LICENSE for more details.
+'''
+
+__version__ = '0.0.3'
+__author__ = 'Yue Du <ifduyue@gmail.com>'
+__url__ = 'https://github.com/ifduyue/pyssdb'
+__license__ = 'BSD 2-Clause License'
+
+import os
+import socket
+import functools
+import itertools
+
+class error(Exception):
+    def __init__(self, reason, *args):
+        super(error, self).__init__(reason, *args)
+        self.reason = reason
+        self.message = ' '.join(args)
+
+class Connection(object):
+    def __init__(self, host='127.0.0.1', port=8888, socket_timeout=None):
+        self.pid = os.getpid()
+        self.host = host
+        self.port = port
+        self.socket_timeout = socket_timeout
+        self._sock = None
+        self._fp = None
+
+    def connect(self):
+        if self._sock:
+            return
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(self.socket_timeout)
+            sock.connect((self.host, self.port))
+            self._sock = sock
+            self._fp = sock.makefile('r')
+        except socket.error:
+            raise
+
+    def disconnect(self):
+        if self._sock is None:
+            return
+        try:
+            self._sock.close()
+        except socket.error:
+            pass
+        self._sock = self._fp = None
+
+    close = disconnect
+
+    def reconnect(self):
+        self.disconnect()
+        self.connect()
+
+    def send(self, cmd, *args):
+        if self._sock is None:
+            self.connect()
+        if cmd == 'delete':
+            cmd = 'del'
+        args = (cmd, ) + args
+        if isinstance(args[-1], int):
+            args = args[:-1] + (str(args[-1]), )
+        buf = ''.join('%d\n%s\n' % (len(i), i) for i in args) + '\n'
+        self._sock.sendall(buf)
+
+    def recv(self, return_list=False):
+        ret = []
+        while True:
+            line = self._fp.readline().rstrip('\n')
+            if not line:
+                break
+            data = self._fp.read(int(line))
+            self._fp.read(1) # discard '\n'
+            ret.append(data)
+        if ret[0] == 'not_found':
+            return None
+        if ret[0] == 'ok':
+            ret = ret[1:]
+            if return_list:
+                return ret
+            if not ret:
+                return None
+            if len(ret) == 1:
+                return ret[0]
+        raise error(*ret)
+
+
+class ConnectionPool(object):
+    def __init__(self, connection_class=Connection, max_connections=1048576, **connection_kwargs):
+        self.pid = os.getpid()
+        self.connection_class = connection_class
+        self.connection_kwargs = connection_kwargs
+        self.max_connections = max_connections
+        self.idle_connections = []
+        self.active_connections = set()
+    
+    def checkpid(self):
+        if self.pid != os.getpid():
+            self.disconnect()
+            self.__init__(self.connection_class, self.max_connections, **self.connection_kwargs)
+    
+    def get_connection(self):
+        self.checkpid()
+        try:
+            connection = self.idle_connections.pop()
+        except IndexError:
+            connection = self.new_connection()
+        self.active_connections.add(connection)
+        return connection
+    
+    def new_connection(self):
+        if len(self.active_connections) + len(self.idle_connections) > self.max_connections:
+            raise error("Too many connections")
+        return self.connection_class(**self.connection_kwargs)
+    
+    def release(self, connection):
+        self.checkpid()
+        if connection.pid == self.pid:
+            self.active_connections.remove(connection)
+            self.idle_connections.append(connection)
+    
+    def disconnect(self):
+        active_connections, self.active_connections = self.active_connections, set()
+        idle_connections, self.idle_connections = self.idle_connections, []
+        for connection in itertools.chain(active_connections, idle_connections):
+            connection.disconnect()
+
+    close = disconnect
+
+
+class Client(object):
+    def __init__(self, host='127.0.0.1', port=8888, connection_pool=None, socket_timeout=None, max_connections=1048576):
+        if not connection_pool:
+            connection_pool = ConnectionPool(host=host, port=port, socket_timeout=socket_timeout, max_connections=max_connections)
+        self.connection_pool = connection_pool
+        connection = self.connection_pool.new_connection()
+        connection.connect()
+        self.connection_pool.idle_connections.append(connection)
+
+    def execute_command(self, cmd, *args):
+        connection = self.connection_pool.get_connection()
+        try:
+            connection.send(cmd, *args)
+            return connection.recv('keys' in cmd or 'scan' in cmd or 'list' in cmd)
+        finally:
+            self.connection_pool.release(connection)
+
+    def disconnect(self):
+        self.connection_pool.disconnect()
+
+    close = disconnect
+
+    def __getattr__(self, cmd):
+        if cmd in self.__dict__:
+            return self.__dict__[cmd]
+        elif cmd in self.__class__.__dict__:
+            return self.__class__.__dict__[cmd]
+        ret = self.__dict__[cmd] = functools.partial(self.execute_command, cmd)
+        return ret
+
+
+if __name__ == '__main__':
+    c = Client()
+    print c.set('key', 'value')
+    print c.get('key')
+    import string
+    for i in string.ascii_letters:
+        c.incr(i)
+    print c.keys('a', 'z', 1)
+    print c.keys('a', 'z', 10)
+    print c.get('z')
+    c.disconnect()
+
