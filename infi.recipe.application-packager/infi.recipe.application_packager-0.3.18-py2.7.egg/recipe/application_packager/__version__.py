@@ -1,0 +1,10 @@
+__version__ = "0.3.18"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '82a073b079af1364b94775cc1a57795e60535e16'
+__git_head_subject__ = 'Finished release v0.3.18.'
+__git_head_message__ = '* release/v0.3.18:\n  HOSTDEV-728 fixing previous commit\n  HOSTDEV-728\n  buildout.cfg: adding distribute_setup.txt to package data\n  fixing tests'
+__git_dirty_diff__ = ''
