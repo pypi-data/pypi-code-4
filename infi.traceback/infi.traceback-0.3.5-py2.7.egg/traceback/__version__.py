@@ -1,0 +1,10 @@
+__version__ = "0.3.5"
+__git_commiter_name__ = "Arnon Yaari"
+__git_commiter_email__ = "arnony@infinidat.com"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '41e52e2887dde58b7bc5924fb56f0ca7957d2553'
+__git_head_subject__ = 'add truncation if length of repr string exceeds a set limit'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
