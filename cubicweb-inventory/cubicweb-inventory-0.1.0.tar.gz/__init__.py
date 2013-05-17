@@ -1,0 +1,1 @@
+"""cubicweb-inventory application package"""
