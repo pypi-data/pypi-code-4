@@ -1,0 +1,10 @@
+__version__ = "0.3.8"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '872653e542341da5711878cf216e0cbd2d4efae1'
+__git_head_subject__ = 'Finished release v0.3.8.'
+__git_head_message__ = '* release/v0.3.8:\n  STORAGEMODEL-214 added tests\n  STORAGEMODEL-214 gevent friendly\n  buildout.cfg: adding infi.pyutils to requirements\n  Make asi gevent aware'
+__git_dirty_diff__ = ''
