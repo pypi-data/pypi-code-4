@@ -1,0 +1,47 @@
+import os
+import sys
+import transaction
+
+from sqlalchemy import engine_from_config
+
+from pyramid.paster import (
+    get_appsettings,
+    setup_logging,
+)
+
+from ringo.model import (
+    DBSession,
+    Base,
+)
+
+from ringo.model.user import (
+    init_model as init_user_model,
+)
+from ringo.model.modul import (
+    init_model as init_modul_model,
+)
+
+
+def usage(argv):
+    cmd = os.path.basename(argv[0])
+    print('usage: %s <config_uri>\n'
+          '(example: "%s development.ini")' % (cmd, cmd))
+    sys.exit(1)
+
+
+def main(argv=sys.argv):
+    if len(argv) != 2:
+        usage(argv)
+    config_uri = argv[1]
+    setup_logging(config_uri)
+    settings = get_appsettings(config_uri)
+    engine = engine_from_config(settings, 'sqlalchemy.')
+    inititializedb(engine)
+
+def inititializedb(engine):
+    Base.metadata.create_all(engine)
+    DBSession.configure(bind=engine)
+    with transaction.manager:
+        init_modul_model(DBSession)
+        init_user_model(DBSession)
+
