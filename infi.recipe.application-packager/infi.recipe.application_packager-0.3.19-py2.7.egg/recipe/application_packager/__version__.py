@@ -1,0 +1,10 @@
+__version__ = "0.3.19"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '1156ed348cbb741f023f5accd049fcf473724a17'
+__git_head_subject__ = 'Finished release v0.3.19.'
+__git_head_message__ = '* release/v0.3.19:\n  HOSTDEV-762 rpm: separate Requires lines\n  fix tests'
+__git_dirty_diff__ = ''
