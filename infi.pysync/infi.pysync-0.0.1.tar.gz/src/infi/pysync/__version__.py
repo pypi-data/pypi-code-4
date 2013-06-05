@@ -1,0 +1,10 @@
+__version__ = "0.0.1"
+__git_commiter_name__ = "Tal Yalon"
+__git_commiter_email__ = "tal.yalon@gmail.com"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = 'e8aa71044b956fae24bf55379e2b386eea3f3560'
+__git_head_subject__ = 'Finished release v0.0.1.'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
