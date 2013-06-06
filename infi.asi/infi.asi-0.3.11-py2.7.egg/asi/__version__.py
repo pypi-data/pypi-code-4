@@ -1,0 +1,10 @@
+__version__ = "0.3.11"
+__git_commiter_name__ = "Alex Shteinberg"
+__git_commiter_email__ = "alexs@infinidat.com"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = 'c880f785092117346ab2e2e8027e6d8dfef80c06'
+__git_head_subject__ = 'report_luns complient to SPC rev36'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
