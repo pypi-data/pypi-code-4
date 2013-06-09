@@ -1,0 +1,10 @@
+__version__ = "0.1"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = 'c91a4a36bbfb9a810b0f41b55df4899af3cb8c37'
+__git_head_subject__ = 'Finished release v0.1.'
+__git_head_message__ = '* release/v0.1:\n  HOSTDEV-944 fixed in jish\n  HOSTDEV-943 added a test and a fix for it\n  HOSTDEV-920 implemented the change, updated the tests\n  HOSTDEV-898 stripping non-printable characters from string\n  HOSTDEV-767 rewrite of the cli, now well tested'
+__git_dirty_diff__ = ''
