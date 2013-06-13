@@ -1,0 +1,10 @@
+__version__ = "0.3.20"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = 'd42ece7fd23e5ecbc46b3ac703968227db50f604'
+__git_head_subject__ = 'HOSTDEV-957 attempt to search/replace setup import from distutils to setuptools'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
