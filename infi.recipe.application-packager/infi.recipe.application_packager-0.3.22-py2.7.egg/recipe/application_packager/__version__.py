@@ -1,0 +1,10 @@
+__version__ = "0.3.22"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '8d0ca4d87e7f74afec6bdd08f5c3dc52f14d6c2b'
+__git_head_subject__ = 'HOSTDEV-958 handling the case of pyscrypto'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
