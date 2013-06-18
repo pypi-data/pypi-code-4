@@ -1,0 +1,6 @@
+from Slot import Slot, SlotsType
+from Schedule import Schedule
+from Appointment import Appointment
+from MedeoxRestClient import MedeoxRestClient
+from MedeoxSocketsClient import MedeoxSocketsClient, ScheduleAdapterBase
+from exceptions import UnauthorizedException, InvalidInputException, NotFoundException, InternalServerException, ServiceUnavailableException
