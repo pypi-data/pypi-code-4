@@ -1,0 +1,49 @@
+""" Data controllers
+"""
+from urllib2 import urlparse
+from Products.Five.browser import BrowserView
+
+class Info(BrowserView):
+    """ Data source info
+    """
+    def __init__(self, context, request):
+        super(Info, self).__init__(context, request)
+        self._info = {}
+
+    @property
+    def info(self):
+        """ Info
+        """
+        if not self._info:
+            self._info = {
+                'provenances': []
+            }
+        return self._info
+
+    def __call__(self, **kwargs):
+
+        field = self.context.getField('provenances')
+        provenances = field.getAccessor(self.context)()
+        formatted_provenances = []
+        for provenance in provenances:
+            title = provenance.get('title', '')
+            link = provenance.get('link', '')
+            owner = provenance.get('owner', '')
+            if title != '' or owner != '' or link != '':
+                formatted_provenance = {'source':{}, 'owner':{}}
+                formatted_provenance['source']['title'] = title
+                formatted_provenance['source']['url'] = link
+
+                if owner != '':
+                    vocab = field.Vocabulary(self.context)
+                    owner_title = self.context.displayValue(vocab, owner)
+                    formatted_provenance['owner']['title'] = owner_title
+                    parser = urlparse.urlparse(owner)
+                    if all((parser.scheme, parser.netloc)):
+                        formatted_provenance['owner']['url'] = owner
+                    else:
+                        formatted_provenance['owner']['url'] = link
+                formatted_provenances.append(formatted_provenance)
+
+        self.info['provenances'] = formatted_provenances
+        return self.info
