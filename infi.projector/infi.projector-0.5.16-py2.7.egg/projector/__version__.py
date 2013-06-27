@@ -1,0 +1,10 @@
+__version__ = "0.5.16"
+__git_commiter_name__ = "Arnon Yaari"
+__git_commiter_email__ = "arnony@infinidat.com"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '03caa3c21c9bb14f9d9416effac11b267ffd4488'
+__git_head_subject__ = 'HOSTDEV-971 clean pyc files in src when running devenv build with --newest or --clean'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
