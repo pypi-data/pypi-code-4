@@ -1,0 +1,7 @@
+HTTPD = "/usr/sbin/httpd"
+BINDIR = "/usr/bin"
+SBINDIR = "/usr/sbin"
+PROGNAME = "httpd"
+MPM_NAME = "prefork"
+LIBEXECDIR = "/usr/libexec/apache2"
+SHLIBPATH_VAR = "DYLD_LIBRARY_PATH"
