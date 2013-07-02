@@ -1,0 +1,10 @@
+__version__ = "0.3.23"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(detached from v0.3.23)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = 'b8f852bac6cd965c5442bf4fee894bc83dce71e9'
+__git_head_subject__ = 'Finished release v0.3.23.'
+__git_head_message__ = '* release/v0.3.23:\n  HOSTDEV-974 removing md5hash from the url\n  HOSTDEV-974 implemented and tests added'
+__git_dirty_diff__ = ''
