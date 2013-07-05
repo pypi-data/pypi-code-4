@@ -1,0 +1,10 @@
+__version__ = "0.1.2"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(detached from v0.1.2)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = 'a301e94d30a75f48546d558f70f9cf2b037a858d'
+__git_head_subject__ = 'Finished release v0.1.2.'
+__git_head_message__ = '* release/v0.1.2:\n  TRIVIAL fixing tests\n  HOSTDEV-955 jissue now supports searching by filters  and showing the favorite filters\n  HOSTDEV-955 jissue list now uses PrettyTable\n  HOSTDEV-976 added delimiter\n  HOSTDEV-976 the whole issue information is added to the commit message\n  HOSTDEV-976 jissue commit improvements'
+__git_dirty_diff__ = ''
