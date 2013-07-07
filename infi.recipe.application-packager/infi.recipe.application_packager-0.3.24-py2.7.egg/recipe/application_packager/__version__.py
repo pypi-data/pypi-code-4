@@ -1,0 +1,10 @@
+__version__ = "0.3.24"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(detached from v0.3.24)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '65bc6be362cb44a60ae8942373a701112e7f0b3e'
+__git_head_subject__ = 'Finished release v0.3.24.'
+__git_head_message__ = '* release/v0.3.24:\n  TRIVIAL updated bootstrap\n  hostdev-1088 using setuptools instead of distribute'
+__git_dirty_diff__ = ''
