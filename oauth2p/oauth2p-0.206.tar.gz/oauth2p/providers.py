@@ -1,0 +1,143 @@
+import uuid
+
+from oauth2p.exceptions import UnsupportedGrantType, InvalidClient, InvalidGrant
+
+
+class Authorization(object):
+
+    def __init__(self, storage, expire=3600, refresh_expire=3600):
+        self.__storage = storage
+        self.__expire = expire
+        self.__refresh_expire = refresh_expire
+
+    def get_access_token(self, grant_type, *args, **kwargs):
+        return self.token_handlers.get(grant_type, self.__default_token_handler)(self, *args, **kwargs)
+
+    @property
+    def refresh_expire(self):
+        return self.__refresh_expire
+
+    @property
+    def token_handlers(self):
+        return self.__grant_type_handlers
+
+    @property
+    def storage(self):
+        return self.__storage
+
+    @property
+    def token_type(self):
+        return 'Bearer'
+
+    @property
+    def expire(self):
+        return self.__expire
+
+    def revoke(self, token, token_type, client_id=None):
+        return self.storage.delete(token=token, token_type=token_type, client_id=client_id)
+
+    def __default_token_handler(self, *args, **kwargs):
+        raise UnsupportedGrantType()
+
+    def __client_credentials(self, **kwargs):
+        token = str(uuid.uuid1())
+        self.storage.save(token=token, token_type='access_token', client_id=None, data=kwargs, expire=self.expire)
+
+        return {
+            "access_token": token,
+            "token_type": self.token_type,
+            "expires_in": self.expire,
+        }
+
+    def __password(self, **kwargs):
+        """Returns response if valid credentials:
+            {
+                access_token: <access_token>
+                token_type: <token_type>
+                expires_in: <expires_in> (can be None if persistent)
+                refresh_token: <refresh_token> (optional)
+            }
+        Passes all other keyword arguments to the storage save method and storage is_valid_owner methods
+
+        Keyword arguments:
+        username -- username
+        password -- password
+        client_id -- client_id (optional)
+        return_refresh -- boolean if should return refresh
+
+        """
+        response = {}
+        username = kwargs.pop('username', None)
+        password = kwargs.pop('password', None)
+        client_id = kwargs.pop('client_id', None)
+        return_refresh = kwargs.pop('return_refresh', None)
+
+        if not username or password is None or not self.storage.is_valid_owner(username, password, **kwargs):
+            raise InvalidClient()
+        token_data = kwargs
+        token_data['username'] = username
+
+        token = str(uuid.uuid1())
+
+        self.storage.save(token=token, token_type='access_token',
+                          client_id=client_id, data=token_data, expire=self.expire)
+
+        response['access_token'] = token
+        response['token_type'] = self.token_type
+        response['expires_in'] = self.expire
+
+        if return_refresh:
+            refresh_token = str(uuid.uuid1())
+            self.storage.save(token=refresh_token, token_type='refresh_token',
+                              client_id=client_id, data=token_data, expire=self.refresh_expire)
+            response['refresh_token'] = refresh_token
+
+        return response
+
+    def __refresh_token(self, **kwargs):
+        client_id = kwargs.get('client_id', None)
+        token_data = self.storage.get(kwargs.get('refresh_token', None), 'refresh_token', client_id)
+
+        if not token_data:
+            raise InvalidGrant()
+
+        token = str(uuid.uuid1())
+        self.storage.save(token=token, token_type='access_token', client_id=None, data=kwargs, expire=self.expire)
+        return {
+            "access_token": token,
+            "token_type": self.token_type,
+            "expires_in": self.expire,
+            "refresh_token": kwargs['refresh_token']
+        }
+
+    __grant_type_handlers = {
+        'client_credentials': __client_credentials,
+        'password': __password,
+        'refresh_token': __refresh_token
+    }
+
+
+class Resource(object):
+    def __init__(self, storage):
+        self.__storage = storage
+
+    @property
+    def storage(self):
+        return self.__storage
+
+    def is_valid_token(self, token):
+        return self.storage.get(token=token, token_type='access_token', client_id=None) is not None
+
+
+class PersistentStorage(object):
+    def is_valid_owner(self, username, password, **kwargs):
+        raise NotImplementedError()
+
+    def save(self, token, token_type, data, expire, client_id):
+        raise NotImplementedError()
+
+    def get(self, token, token_type, client_id):
+        raise NotImplementedError()
+
+    def delete(self, token, token_type, client_id):
+        raise NotImplementedError()
