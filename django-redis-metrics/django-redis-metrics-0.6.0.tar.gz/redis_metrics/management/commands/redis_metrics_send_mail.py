@@ -1,0 +1,47 @@
+from datetime import date
+
+from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
+from django.core.management.base import NoArgsCommand
+from django.template.loader import render_to_string
+
+from redis_metrics.models import R
+
+
+class Command(NoArgsCommand):
+    help = "Send Metrics Report E-mails"
+    can_import_settings = True
+
+    def handle_noargs(self, **options):
+        """Send Report E-mails."""
+
+        r = R()
+        metrics = r.metric_slugs_by_category()
+        for category_name, slug_list in metrics.items():
+            metrics[category_name] = r.get_metrics(set(slug_list))
+
+        # metrics is now:
+        # --------------
+        # { Category : [
+        #     ('foo', {'day': '3', 'month': '3', 'week': '3', 'year': '3'}),
+        #     ('bar', {'day': '1', 'month': '1', 'week': '1', 'year': '1'})]
+        #   ],
+        #   ...
+        # }
+
+        template = "redis_metrics/email/report.{fmt}"
+        data = {
+            'today': date.today(),
+            'metrics': metrics,
+        }
+        message = render_to_string(template.format(fmt='txt'), data)
+        message_html = render_to_string(template.format(fmt='html'), data)
+
+        msg = EmailMultiAlternatives(
+            subject="Redis Metrics Report",
+            body=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[email for name, email in settings.ADMINS]
+        )
+        msg.attach_alternative(message_html, "text/html")
+        msg.send()
