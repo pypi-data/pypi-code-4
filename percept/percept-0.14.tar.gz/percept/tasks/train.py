@@ -1,0 +1,48 @@
+"""
+Machine learning algorithms to train and predict
+"""
+
+from base import Task
+from percept.fields.base import Complex, List
+import numpy as np
+from sklearn import svm
+from percept.conf.base import settings
+from percept.utils.models import RegistryCategories
+from percept.tests.framework import SVMTester
+import os
+from percept.utils.input import DataFormats
+
+import logging
+
+log = logging.getLogger(__name__)
+
+class Train(Task):
+    """
+    A class to train a support vector machine algorithm
+    """
+    clf = Complex()
+    category = RegistryCategories.algorithms
+    algorithm = svm.SVC
+    args = {'C' : 1.0}
+    tester = SVMTester
+    test_cases = [
+        {
+            'data' : os.path.abspath(os.path.join(settings.PACKAGE_PATH,'tests/data/csv/1/data.csv')),
+            'target' : os.path.abspath(os.path.join(settings.PACKAGE_PATH,'tests/data/csv/1/target.csv')),
+            'dataformat' : DataFormats.csv
+        }
+    ]
+    help_text = "Example class to train and predict with SVM."
+
+    def train(self, data, target, **kwargs):
+        #When doing self.clf =clf , __set__ is called on the field.
+        # But, when doing self.clf = self.algorithm() and self.clf.fit(), __set__ is not called.
+        # Work around this by doing the fit logic on a local variable, and then assigning to self.clf,
+        clf = self.algorithm(**kwargs)
+        clf = clf.fit(data, target)
+        self.clf = clf
+        return self.clf
+
+    def predict(self, test_data, **kwargs):
+        test_data = test_data
+        return self.clf.predict(test_data)
