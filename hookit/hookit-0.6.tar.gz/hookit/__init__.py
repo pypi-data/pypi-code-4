@@ -1,0 +1,140 @@
+# -*- coding: utf8 -*-
+
+"""
+Usage:
+  hookit [--scripts=<dir>] [--listen=<address>] [--port=<port>]
+
+args:
+  -v --version        Show version
+  --scripts=<dir>     Where to look for hook scripts [default: .]
+  --listen=<address>  Server address to listen on [default: 0.0.0.0]
+  --port=<port>       Server port to listen on [default: 8000]
+"""
+
+import sys
+import json
+import struct
+import socket
+import logging
+import os.path
+from cgi import parse_qs
+from subprocess import call
+
+from docopt import docopt
+
+from BaseHTTPServer import HTTPServer
+from SimpleHTTPServer import SimpleHTTPRequestHandler
+
+
+args = docopt(__doc__, version=0.1)
+
+WHITELIST = [
+    ('192.30.252.0', 22),
+    ('204.232.175.64', 27)
+]
+
+
+def to_num(ip):
+    return struct.unpack('<L', socket.inet_aton(ip))[0]
+
+
+def to_netmask(ip, bits):
+    return to_num(ip) & ((2L << bits - 1) - 1)
+
+
+def in_network(ip, net):
+    return to_num(ip) & net == net
+
+
+def in_whitelist(client):
+    for ip, bit in WHITELIST:
+        if in_network(client, to_netmask(ip, bit)):
+            return True
+    return False
+
+
+class HookHandler(SimpleHTTPRequestHandler):
+    def do_GET(self):
+        self.send_forbidden()
+
+    def do_POST(self):
+        # Reject all requests from non-Github IPs
+        if not in_whitelist(self.client_address[0]):
+            self.send_forbidden()
+            return
+
+        # Read POST data
+        length = int(self.headers.getheader('Content-Length'))
+        data = self.rfile.read(length)
+
+        # Parse POST data and get payload
+        payload = parse_qs(data).get('payload', None)
+        if not payload:
+            self.send_forbidden()
+            return
+
+        payload = json.loads(payload[0])
+        hook_trigger(payload)
+
+        self.send_ok()
+
+    def send_ok(self):
+        self.send_response(200)
+        self.end_headers()
+
+    def send_forbidden(self):
+        self.send_response(403)
+        self.end_headers()
+
+
+def hook_trigger(payload):
+    ref = payload['ref']
+    after = payload['after']
+    repo = payload['repository']['name']
+    branch = ref.split('/')[-1]
+
+    jail = os.path.abspath(args['--scripts'])
+    trigger = os.path.abspath('%s/%s' % (repo, branch))
+
+    # Check if absolute trigger path resides in jail directory
+    if not os.path.commonprefix([trigger, jail]).startswith(jail):
+        logging.warning('%s: Tried to execute outside jail' % trigger)
+        return
+
+    # No action
+    if not os.path.isfile(trigger):
+        logging.info('%s: No such trigger' % trigger)
+        return
+
+    logging.info('%s: Executing trigger' % trigger)
+    call([trigger, branch, repo, after])
+
+
+def run():
+    host = args['--listen']
+
+    try:
+        port = int(args['--port'])
+    except ValueError:
+        logging.error('Binding port must be integer')
+        sys.exit(1)
+
+    try:
+        http = HTTPServer((host, port), HookHandler)
+        http.serve_forever()
+    except (socket.gaierror, socket.error) as e:
+        startup_error(e.strerror.capitalize())
+    except OverflowError as e:
+        startup_error('Port must be in interval 0-65535')
+    except KeyboardInterrupt:
+        print('')
+        sys.exit(0)
+
+
+def startup_error(message):
+    logging.error('Could not start server: %s' % message)
+    sys.exit(1)
+
+
+if __name__ == '__main__':
+    run()
