@@ -1,0 +1,10 @@
+__version__ = "0.3.6"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(detached from v0.3.6)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '0ae5aea584e207c3b8924e4a405a4442c9daab32'
+__git_head_subject__ = 'Finished release v0.3.6.'
+__git_head_message__ = '* release/v0.3.6:\n  TRIVIAL bootstrap update\n  HOSTDEV-1101 fixing gui-scripts on non-windows platforms'
+__git_dirty_diff__ = ''
