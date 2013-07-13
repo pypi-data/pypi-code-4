@@ -1,0 +1,3 @@
+"""
+Porticus plugin for DjangoCMS
+"""
