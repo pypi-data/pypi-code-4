@@ -1,0 +1,297 @@
+# Copyright (c) Aaron Gallagher <_@habnab.it>
+# See COPYING for details.
+
+from __future__ import unicode_literals
+
+from passacre.multibase import MultiBase
+from passacre.util import nested_set, jdumps
+from passacre import generator
+
+import collections
+import json
+import os
+import string
+
+
+default_digits = {
+    'printable': string.digits + string.ascii_letters + string.punctuation,
+    'alphanumeric': string.digits + string.ascii_letters,
+    'digit': string.digits,
+    'letter': string.ascii_letters,
+    'lowercase': string.ascii_lowercase,
+    'uppercase': string.ascii_uppercase,
+}
+
+def multibase_of_schema(schema, words):
+    "Convert a password schema from decoded YAML to a ``MultiBase``."
+    ret = []
+    for item in schema:
+        if isinstance(item, list) and item[1] == 'word':
+            count = item[0]
+            delimiter = ' '
+            if len(item) == 3:
+                delimiter = item[2]
+            if not words:
+                raise ValueError('no words provided')
+            items = []
+            for x in range(count):
+                if x != 0:
+                    items.append([delimiter])
+                items.append(words)
+        else:
+            count = 1
+            if isinstance(item, list) and isinstance(item[0], int):
+                if len(item) == 2:
+                    count, item = item
+            if not isinstance(item, list):
+                item = [item]
+            items = [''.join(default_digits.get(i, i) for i in item)] * count
+        ret.extend(items)
+    return MultiBase(ret)
+
+
+
+class ConfigBase(object):
+    def __init__(self):
+        self.defaults = {
+            'method': 'keccak',
+            'iterations': 1000,
+        }
+        self.site_hashing = {
+            'enabled': True,
+        }
+        self.words = None
+        self.word_list_file = None
+
+    def load_words_file(self, path):
+        if path is None:
+            return
+        self.word_list_file = path
+        with open(os.path.expanduser(path)) as infile:
+            self.words = [word.strip() for word in infile]
+
+    def fill_out_config(self, config):
+        config['multibase'] = multibase_of_schema(config['schema'], self.words)
+        config['iterations'] = (
+            config.get('iterations', 1000) + config.get('increment', 0))
+
+    def set_defaults(self, defaults):
+        self.defaults.update(defaults)
+        self.site_hashing.update(
+            (k, v) for k, v in self.defaults.items()
+            if k in ('method', 'iterations'))
+        self.fill_out_config(self.defaults)
+
+    def get_site(self, site, password=None):
+        config = self._get_site(site)
+        if config is None and password is not None:
+            hashed_site = generator.hash_site(password, site, self.site_hashing)
+            config = self._get_site(hashed_site)
+        if config is None:
+            config = self.defaults
+        return config
+
+    def generate_for_site(self, username, password, site):
+        config = self.get_site(site, password)
+        return generator.generate(username, password, site, config)
+
+
+class YAMLConfig(ConfigBase):
+    def read(self, infile):
+        "Load site configuration from a YAML file object."
+        import yaml
+        parsed = yaml.load(infile)
+        self.set_defaults(parsed['sites'].get('default', {}))
+        self.load_words_file(parsed.get('words-file'))
+
+        self.sites = {}
+        for site, additional_config in parsed['sites'].items():
+            site_config = self.sites[site] = self.defaults.copy()
+            site_config.update(additional_config)
+            self.fill_out_config(site_config)
+
+        self.site_hashing.update(parsed.get('site-hashing', {}))
+
+    def _get_site(self, site, password=None):
+        return self.sites.get(site)
+
+    def get_all_sites(self):
+        return self.sites
+
+    def _no_config_modification(self, *a, **kw):
+        raise NotImplementedError("YAMLConfig doesn't implement configuration modification.")
+
+    add_site = remove_site = set_site_schema = _no_config_modification
+    add_schema = remove_schema = set_schema_value = set_schema_name = _no_config_modification
+
+    def get_all_schemata(self, *a, **kw):
+        raise NotImplementedError("YAMLConfig doesn't have a way to list schemata.")
+
+    get_schema = get_all_schemata
+
+
+def maybe_json(val):
+    try:
+        return json.loads(val)
+    except ValueError:
+        return val
+
+def maybe_json_dict(pairs):
+    return dict((k, maybe_json(v)) for k, v in pairs)
+
+class SqliteConfig(ConfigBase):
+    def read(self, infile):
+        import sqlite3
+        self._db = sqlite3.connect(infile.name)
+        curs = self._db.cursor()
+
+        curs.execute(
+            'SELECT config_values.name, value FROM config_values WHERE site_name IS NULL')
+        config = maybe_json_dict(curs)
+        self.load_words_file(config.get('words-file'))
+        self.set_defaults(self._get_site('default'))
+        self.site_hashing.update(config.get('site-hashing', {}))
+
+    def get_site_config(self, site):
+        curs = self._db.cursor()
+        curs.execute(
+            'SELECT name, value FROM config_values WHERE site_name IS ?',
+            (site,))
+        return maybe_json_dict(curs)
+
+    def _get_site(self, site):
+        curs = self._db.cursor()
+        curs.execute(
+            'SELECT value FROM sites JOIN schemata USING (schema_id) WHERE site_name = ?',
+            (site,))
+        results = curs.fetchall()
+        if not results:
+            return None
+
+        config = self.defaults.copy()
+        config['schema'] = json.loads(results[0][0])
+        config.update(self.get_site_config(site))
+
+        self.fill_out_config(config)
+        return config
+
+    def add_site(self, name, schema_id):
+        curs = self._db.cursor()
+        curs.execute(
+            'INSERT INTO sites (site_name, schema_id) VALUES (?, ?)',
+            (name, schema_id))
+        self._db.commit()
+
+    def set_site_schema(self, name, schema_id):
+        curs = self._db.cursor()
+        curs.execute(
+            'UPDATE sites SET schema_id = ? WHERE site_name = ?',
+            (schema_id, name))
+        self._db.commit()
+
+    def remove_site(self, name):
+        curs = self._db.cursor()
+        curs.execute('DELETE FROM sites WHERE site_name = ?', (name,))
+        self._db.commit()
+
+    def get_all_sites(self):
+        curs = self._db.cursor()
+        curs.execute(
+            'SELECT site_name, name, value FROM config_values WHERE site_name IS NOT NULL')
+        sites = collections.defaultdict(self.defaults.copy)
+        for site, k, v in curs:
+            sites[site][k] = maybe_json(v)
+
+        curs.execute(
+            'SELECT site_name, name, value FROM sites JOIN schemata USING (schema_id) WHERE site_name IS NOT NULL')
+        for site, schema_name, schema in curs:
+            sites[site]['schema-name'] = schema_name
+            sites[site]['schema'] = json.loads(schema)
+
+        for config in sites.values():
+            self.fill_out_config(config)
+
+        return dict(sites)
+
+    def get_all_schemata(self):
+        curs = self._db.cursor()
+        curs.execute('SELECT name, value FROM schemata')
+        return maybe_json_dict(curs)
+
+    def get_schema(self, name):
+        curs = self._db.cursor()
+        curs.execute('SELECT schema_id, value FROM schemata WHERE name = ?', (name,))
+        results = curs.fetchall()
+        if not results:
+            raise ValueError('there is no schema by the name %r' % (name,))
+        return results[0]
+
+    def add_schema(self, name, value):
+        curs = self._db.cursor()
+        curs.execute(
+            'INSERT INTO schemata (name, value) VALUES (?, ?)',
+            (name, jdumps(value)))
+        self._db.commit()
+
+    def remove_schema(self, schema_id):
+        curs = self._db.cursor()
+        curs.execute('SELECT site_name FROM sites WHERE schema_id = ?', (schema_id,))
+        sites = sorted(site for site, in curs)
+        if sites:
+            raise ValueError(
+                "can't delete this schema; at least one site is using it: %r" % (sites,))
+        curs.execute('DELETE FROM schemata WHERE schema_id = ?', (schema_id,))
+        self._db.commit()
+
+    def set_schema_name(self, schema_id, newname):
+        curs = self._db.cursor()
+        curs.execute('UPDATE schemata SET name = ? WHERE schema_id = ?', (newname, schema_id))
+        self._db.commit()
+
+    def set_schema_value(self, schema_id, value):
+        curs = self._db.cursor()
+        curs.execute(
+            'UPDATE schemata SET value = ? WHERE schema_id = ?',
+            (jdumps(value), schema_id))
+        self._db.commit()
+
+    def get_config(self, site, name):
+        curs = self._db.cursor()
+        curs.execute(
+            'SELECT value FROM config_values WHERE site_name IS ? AND name = ?',
+            (site, name))
+        results = curs.fetchall()
+        if not results:
+            raise ValueError('there is no config %r for %r' % (name, site))
+        return maybe_json(results[0][0])
+
+    def set_config(self, site, name, value):
+        split_name = name.split('.')
+        if len(split_name) > 1:
+            try:
+                base_value = self.get_config(site, split_name[0])
+            except ValueError:
+                base_value = {}
+            nested_set(base_value, split_name[1:], value)
+            name, new_value = split_name[0], base_value
+        else:
+            new_value = value
+        curs = self._db.cursor()
+        curs.execute(
+            'DELETE FROM config_values WHERE site_name IS ? AND name = ?',
+            (site, name,))
+        if new_value is not None:
+            curs.execute(
+                'INSERT INTO config_values (site_name, name, value) VALUES (?, ?, ?)',
+                (site, name, jdumps(new_value)))
+        self._db.commit()
+
+
+def load(infile):
+    if infile.read(16) == b'SQLite format 3\x00':
+        config = SqliteConfig()
+    else:
+        config = YAMLConfig()
+    infile.seek(0)
+    config.read(infile)
+    return config
