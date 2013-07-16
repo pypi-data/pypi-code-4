@@ -1,0 +1,30 @@
+from setuptools import setup, find_packages
+import sys, os
+
+version = '0.1.2'
+
+README = os.path.join(os.path.dirname(__file__), "README.rst")
+
+
+setup(name='pyxdeco',
+      version=version,
+      description="Python eXtraordinary Decorators",
+      long_description=open(README).read(),
+      klassifiers=[
+          "Programming Language :: Python",
+          "License :: OSI Approved :: MIT License",
+          "Intended Audience :: Developers"
+          "Topic :: Software Development :: Libraries :: Python Modules"
+      ],
+      keywords='',
+      author='Ian McCracken',
+      author_email='ian.mccracken@gmail.com',
+      url='http://github.com/iancmcc/pyxdeco',
+      license='MIT',
+      packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+      include_package_data=True,
+      zip_safe=True,
+      install_requires=[],
+      entry_points="""
+      """,
+      )
