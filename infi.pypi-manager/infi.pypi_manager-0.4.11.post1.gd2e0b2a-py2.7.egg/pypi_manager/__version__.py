@@ -1,0 +1,10 @@
+__version__ = "0.4.11.post1.gd2e0b2a"
+__git_commiter_name__ = "Arnon Yaari"
+__git_commiter_email__ = "arnony@infinidat.com"
+__git_branch__ = 'develop'
+__git_remote_tracking_branch__ = 'origin/develop'
+__git_remote_url__ = 'git@infinigit.infinidat.com:/it/pypi-manager.git'
+__git_head_hash__ = 'd2e0b2ab30116a9ab01781aa48834a5816763d66'
+__git_head_subject__ = 'amend 505d61e'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
