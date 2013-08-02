@@ -1,0 +1,3 @@
+from .package_generator import NodejsPackageSectionGenerator
+from .compile_scripts_generator import NodejsCompileScriptsSectionGenerator
+from .test_factory_generator import NodejsTestFactorySectionGenerator
