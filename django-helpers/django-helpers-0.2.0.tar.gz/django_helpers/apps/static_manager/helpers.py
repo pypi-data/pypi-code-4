@@ -1,0 +1,5 @@
+jQueryURL = 'js/jquery-1.9.1.min.js'
+AjaxCsrfURL = 'js/django-ajax-csrf.js'
+jQueryEasingURL = 'js/jquery.easing.min.js'
+jQueryUIURL = 'js/jquery-ui.js'
+BootstrapURL = 'js/bootstrap.min.js'
