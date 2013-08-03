@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+#   Copyright 2010-2013 Tuukka Turto
+#
+#   This file is part of pyherc.
+#
+#   pyherc is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   pyherc is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with pyherc.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+Module for checking end conditions
+"""
+
+from pyherc.events import DeathEvent, DropEvent
+from pyherc.aspects import logged
+from pyherc.data.model import DIED_IN_DUNGEON, ESCAPED_DUNGEON
+
+class Dying():
+    """
+    Rules for actions happening when dying
+
+    .. versionadded:: 0.6
+    """
+    @logged
+    def __init__(self):
+        """
+        Default constructor
+        """
+        super(Dying, self).__init__()
+
+    @logged
+    def check_dying(self, character):
+        """
+        Check if character dies and process it
+        """
+        if character.hit_points <= 0:
+            for item in character.inventory:
+                character.inventory.remove(item)
+                character.level.add_item(item, character.location)
+                character.raise_event(DropEvent(character,
+                                                item))
+
+            if not character.inventory.weapon == None:
+                character.level.add_item(character.inventory.weapon,
+                                         character.location)
+                character.raise_event(DropEvent(character,
+                                                item))
+                character.inventory.weapon = None
+
+            if character == character.model.player:
+                character.model.end_condition = DIED_IN_DUNGEON
+
+            character.raise_event(DeathEvent(deceased = character,
+                                             affected_tiles = character.location))
+            character.level.remove_creature(character)
+
+    @logged
+    def calculate_score(self, character):
+        """
+        Calculate score for character
+
+        .. versionadded:: 0.8
+        """
+        end_condition = character.model.end_condition
+
+        score = sum((item.cost for item in character.inventory))
+
+        if end_condition == DIED_IN_DUNGEON:
+            score = int(score * 0.75)
+        elif end_condition == ESCAPED_DUNGEON:
+            score = int(score * 1.25)
+
+        return score
