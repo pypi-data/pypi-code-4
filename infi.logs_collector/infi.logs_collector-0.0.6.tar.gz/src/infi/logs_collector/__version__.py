@@ -1,0 +1,10 @@
+__version__ = "0.0.6"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = 'a6ca9d3f5c71e246165de0fe11880fa36efb9cf8'
+__git_head_subject__ = 'TRIVIAL msinfo32.exe is different on Windows 2012?'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
