@@ -1,0 +1,10 @@
+__version__ = "0.6.6"
+__git_commiter_name__ = "Arnon Yaari"
+__git_commiter_email__ = "arnony@infinidat.com"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '589ccca55aa8d632c76c7d1e8f41aca355482f40'
+__git_head_subject__ = 'HOSTDEV-1107 add prefer-final flag to devenv build'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
