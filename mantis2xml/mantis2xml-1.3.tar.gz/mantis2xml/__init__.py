@@ -1,0 +1,9 @@
+pkg_name         = __name__ if __package__ is None else __package__
+pkg_description  = 'Migrates MantisBT issues to XML'
+pkg_version      = '1.3'
+pkg_license      = 'OSI Approved :: GNU General Public License v2 or later (GPLv2+)'
+pkg_url          = 'http://' + pkg_name + '.readthedocs.org/'
+pkg_author       = 'Richard Gomes http://rgomes-info.blogspot.com'
+pkg_email        = 'rgomes.info@gmail.com'
+pkg_keywords     = [ 'mantis', 'launchpad', 'migration', 'bugs', 'issue', 'management']
+pkg_requirements = [ 'lxml','suds','docopt' ]
