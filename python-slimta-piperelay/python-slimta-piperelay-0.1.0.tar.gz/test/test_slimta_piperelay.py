@@ -1,0 +1,133 @@
+
+import unittest
+
+from mox import MoxTestBase, IsA
+from gevent import Timeout
+import gevent_subprocess
+
+from slimta.piperelay import PipeRelay, MaildropRelay, DovecotRelay
+from slimta.relay import TransientRelayError, PermanentRelayError
+from slimta.envelope import Envelope
+
+
+class TestPipeRelay(MoxTestBase):
+
+    def test_exec_process(self):
+        pmock = self.mox.CreateMock(gevent_subprocess.Popen)
+        self.mox.StubOutWithMock(gevent_subprocess, 'Popen')
+        env = Envelope('sender@example.com', ['rcpt@example.com'])
+        env.parse('From: sender@example.com\r\n\r\ntest test\r\n')
+        gevent_subprocess.Popen(['relaytest', '-f', 'sender@example.com'],
+                                stdin=gevent_subprocess.PIPE,
+                                stdout=gevent_subprocess.PIPE,
+                                stderr=gevent_subprocess.PIPE).AndReturn(pmock)
+        pmock.communicate('From: sender@example.com\r\n\r\ntest test\r\n').AndReturn(('', ''))
+        pmock.pid = -1
+        pmock.returncode = 0
+        self.mox.ReplayAll()
+        m = PipeRelay(['relaytest', '-f', '{sender}'])
+        status, msg = m._exec_process(env)
+        self.assertEqual(0, status)
+        self.assertEqual(None, msg)
+
+    def test_exec_process_error(self):
+        pmock = self.mox.CreateMock(gevent_subprocess.Popen)
+        self.mox.StubOutWithMock(gevent_subprocess, 'Popen')
+        env = Envelope('sender@example.com', ['rcpt@example.com'])
+        env.parse('From: sender@example.com\r\n\r\ntest test\r\n')
+        gevent_subprocess.Popen(['relaytest', '-f', 'sender@example.com'],
+                                stdin=gevent_subprocess.PIPE,
+                                stdout=gevent_subprocess.PIPE,
+                                stderr=gevent_subprocess.PIPE).AndReturn(pmock)
+        pmock.communicate('From: sender@example.com\r\n\r\ntest test\r\n').AndReturn(('', ''))
+        pmock.pid = -1
+        pmock.returncode = 1337
+        self.mox.ReplayAll()
+        m = PipeRelay(['relaytest', '-f', '{sender}'])
+        status, msg = m._exec_process(env)
+        self.assertEqual(1337, status)
+        self.assertEqual('Delivery failed', msg)
+
+    def test_exec_process_error_pattern(self):
+        pmock = self.mox.CreateMock(gevent_subprocess.Popen)
+        self.mox.StubOutWithMock(gevent_subprocess, 'Popen')
+        env = Envelope('sender@example.com', ['rcpt@example.com'])
+        env.parse('From: sender@example.com\r\n\r\ntest test\r\n')
+        gevent_subprocess.Popen(['relaytest', '-f', 'sender@example.com'],
+                                stdin=gevent_subprocess.PIPE,
+                                stdout=gevent_subprocess.PIPE,
+                                stderr=gevent_subprocess.PIPE).AndReturn(pmock)
+        pmock.communicate('From: sender@example.com\r\n\r\ntest test\r\n').AndReturn(('', 'relaytest: error message'))
+        pmock.pid = -1
+        pmock.returncode = 1337
+        self.mox.ReplayAll()
+        m = PipeRelay(['relaytest', '-f', '{sender}'], error_pattern=r'relaytest: (.*)')
+        status, msg = m._exec_process(env)
+        self.assertEqual(1337, status)
+        self.assertEqual('error message', msg)
+
+    def test_attempt(self):
+        env = Envelope()
+        m = PipeRelay(['relaytest'])
+        self.mox.StubOutWithMock(m, '_exec_process')
+        m._exec_process(env).AndReturn((0, None))
+        self.mox.ReplayAll()
+        m.attempt(env, 0)
+
+    def test_attempt_transientfail(self):
+        env = Envelope()
+        m = PipeRelay(['relaytest'])
+        self.mox.StubOutWithMock(m, '_exec_process')
+        m._exec_process(env).AndReturn((1337, 'transient failure'))
+        self.mox.ReplayAll()
+        with self.assertRaises(TransientRelayError):
+            m.attempt(env, 0)
+
+    def test_attempt_timeout(self):
+        env = Envelope()
+        m = PipeRelay(['relaytest'])
+        self.mox.StubOutWithMock(m, '_exec_process')
+        m._exec_process(env).AndRaise(Timeout)
+        self.mox.ReplayAll()
+        with self.assertRaises(TransientRelayError):
+            m.attempt(env, 0)
+
+    def test_attempt_permanentfail(self):
+        env = Envelope()
+        m = PipeRelay(['relaytest'])
+        self.mox.StubOutWithMock(m, '_exec_process')
+        m._exec_process(env).AndReturn((13, '5.0.0 permanent failure'))
+        self.mox.ReplayAll()
+        with self.assertRaises(PermanentRelayError):
+            m.attempt(env, 0)
+
+
+class TestMaildropRelay(MoxTestBase):
+
+    def test_extra_args(self):
+        m = MaildropRelay(extra_args=['-t', 'test'])
+        self.assertEquals(['-t', 'test'], m.args[-2:])
+
+    def test_raise_error(self):
+        m = MaildropRelay()
+        with self.assertRaises(TransientRelayError):
+            m.raise_error(MaildropRelay.EX_TEMPFAIL, 'message')
+        with self.assertRaises(PermanentRelayError):
+            m.raise_error(13, 'message')
+
+
+class TestDovecotRelay(MoxTestBase):
+
+    def test_extra_args(self):
+        m = DovecotRelay(extra_args=['-t', 'test'])
+        self.assertEquals(['-t', 'test'], m.args[-2:])
+
+    def test_raise_error(self):
+        m = DovecotRelay()
+        with self.assertRaises(TransientRelayError):
+            m.raise_error(DovecotRelay.EX_TEMPFAIL, 'message')
+        with self.assertRaises(PermanentRelayError):
+            m.raise_error(13, 'message')
+
+
+# vim:et:fdm=marker:sts=4:sw=4:ts=4
