@@ -1,0 +1,2 @@
+def dou():
+    print 'dou'
