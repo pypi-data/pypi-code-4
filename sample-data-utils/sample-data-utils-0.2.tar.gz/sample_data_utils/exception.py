@@ -1,0 +1,2 @@
+class MaxAttemptException(Exception):
+    pass
