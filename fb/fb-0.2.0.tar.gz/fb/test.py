@@ -1,0 +1,7 @@
+token='CAACEdEose0cBACER45cmArLFqGPf2ALQ1F3S8v04By1qulqmPNqOZAr5j8uTeHScgsTMmzC8sQUXu1DkKIjfjh203p3ynK7Hv18sKKZCr61GI8kjvaRHacu1x8fW8hEbSWMDk2uXgvlqSZB5RNb0xwFVOMzokZAuhh2ZBEZBKZCpgZDZD'
+from wiring import *
+from api import *
+from request import *
+f=api(token)
+
+
