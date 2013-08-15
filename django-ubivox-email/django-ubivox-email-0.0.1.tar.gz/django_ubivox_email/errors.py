@@ -1,0 +1,1 @@
+class UbivoxAPIError(Exception): pass
