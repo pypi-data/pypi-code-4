@@ -1,0 +1,1 @@
+class InvalidFileTypeError(Exception): pass
