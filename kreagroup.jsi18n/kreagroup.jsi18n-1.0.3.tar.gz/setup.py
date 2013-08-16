@@ -1,0 +1,40 @@
+from setuptools import setup, find_packages
+import os
+
+version = '1.0.3'
+
+setup(name='kreagroup.jsi18n',
+      version=version,
+      description="Plone i18n for JavaScript",
+      long_description=open("README.txt").read() + "\n" +
+                       open(os.path.join("docs", "HISTORY.txt")).read(),
+      # Get more strings from
+      # http://pypi.python.org/pypi?:action=list_classifiers
+      classifiers=[
+        "Framework :: Plone",
+        "Programming Language :: Python",
+        ],
+      keywords='plone JavaScript i18n krea.group jarn.jsi18n',
+      author='Jochen Dekeyser',
+      author_email='ict@kreaplast.be',
+      url='.',
+      license='GPL',
+      packages=find_packages(exclude=['ez_setup']),
+      namespace_packages=['kreagroup'],
+      include_package_data=True,
+      zip_safe=False,
+      install_requires=[
+          'setuptools',
+          'jarn.jsi18n==1.0',
+          # -*- Extra requirements: -*-
+      ],
+      extras_require={
+          'test': ['kreagroup.policy [test]',]
+      },
+      entry_points="""
+      # -*- Entry points: -*-
+
+      [z3c.autoinclude.plugin]
+      target = plone
+      """,
+      )
