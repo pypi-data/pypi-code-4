@@ -1,0 +1,10 @@
+__version__ = "0.1.3"
+__git_commiter_name__ = "Tal Yalon"
+__git_commiter_email__ = "tal.yalon@gmail.com"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '5e30be13c88adb4493e6d6e2e80795321eef396c'
+__git_head_subject__ = 'TRIVIAL fixing setup (2)'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
