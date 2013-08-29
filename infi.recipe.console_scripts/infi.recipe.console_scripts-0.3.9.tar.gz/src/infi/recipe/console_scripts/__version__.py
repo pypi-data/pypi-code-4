@@ -1,0 +1,10 @@
+__version__ = "0.3.9"
+__git_commiter_name__ = "Arnon Yaari"
+__git_commiter_email__ = "arnony@infinidat.com"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '6919d9a3d767c2e374b0ee1fc16334a0b3b05c74'
+__git_head_subject__ = 'fix minimal-packages'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
