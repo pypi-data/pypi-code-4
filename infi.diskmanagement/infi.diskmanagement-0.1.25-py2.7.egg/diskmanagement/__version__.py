@@ -1,0 +1,10 @@
+__version__ = "0.1.25"
+__git_commiter_name__ = "Arnon Yaari"
+__git_commiter_email__ = "arnony@infinidat.com"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '338acfac72b6eb8906c281f94661d16bfcbe388e'
+__git_head_subject__ = 'using get_volume_extents to match disk+partition to volume instead of get_devnum'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
