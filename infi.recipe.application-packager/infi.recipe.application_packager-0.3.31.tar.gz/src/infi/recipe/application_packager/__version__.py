@@ -1,0 +1,10 @@
+__version__ = "0.3.31"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(detached from v0.3.31)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '823b942a37668386d59bc861f670bfc596e4c493'
+__git_head_subject__ = 'Finished release v0.3.31.'
+__git_head_message__ = '* release/v0.3.31:\n  HIP-708 require-administrative-privileges\n  TRIVIAL updating defaults'
+__git_dirty_diff__ = ''
