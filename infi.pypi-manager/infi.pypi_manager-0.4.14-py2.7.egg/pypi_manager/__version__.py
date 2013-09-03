@@ -1,0 +1,10 @@
+__version__ = "0.4.14"
+__git_commiter_name__ = "Arnon Yaari"
+__git_commiter_email__ = "arnony@infinidat.com"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '5a312b06505ccbfca189069a0f29fe146a885471'
+__git_head_subject__ = 'HOSTDEV-1176 implement mirror build from download url'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
