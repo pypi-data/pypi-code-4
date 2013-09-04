@@ -1,0 +1,61 @@
+from django import template
+
+from django.core.exceptions import ImproperlyConfigured
+
+from django_bundles.conf.bundles_settings import bundles_settings
+from django_bundles.core import get_bundles
+
+register = template.Library()
+
+
+def _render_file(file_type, file_url, attrs=None):
+    attr_string = ''
+    if attrs:
+        attr_string = ''.join(' %s="%s"' % x for x in attrs.iteritems())
+
+    return bundles_settings.BUNDLES_TAG_HTML[file_type] % {
+        'file_url': file_url,
+        'attrs': attr_string,
+    }
+
+
+def _render_bundle(bundle_name, debug=False):
+    """
+    Renders the HTML for a bundle in place - one HTML tag or many depending on settings.USE_BUNDLES
+    """
+    try:
+        bundle = get_bundles()[bundle_name]
+    except KeyError:
+        raise ImproperlyConfigured("Bundle '%s' is not defined" % bundle_name)
+
+    if debug and not bundle.create_debug:
+        raise ImproperlyConfigured("Bundle '%s' does not have a debug bundle" % bundle_name)
+
+    if bundles_settings.USE_BUNDLES:
+        return _render_file(bundle.bundle_type, bundle.get_debug_url() if debug else bundle.get_url(), attrs=({'media':bundle.media} if bundle.media else {}))
+
+    # Render files individually
+    bundle_files = []
+
+    for bundle_file in bundle.files:
+        bundle_files.append(_render_file(bundle_file.file_type, bundle_file.file_url, attrs=({'media':bundle_file.media} if bundle.media else {})))
+
+    return '\n'.join(bundle_files)
+
+
+@register.simple_tag
+def render_bundle(bundle_name):
+    return _render_bundle(bundle_name)
+
+
+@register.simple_tag
+def render_debug_bundle(bundle_name):
+    return _render_bundle(bundle_name, debug=True)
+
+
+@register.assignment_tag(name='get_bundles')
+def do_get_bundles():
+    """
+    Assigns the bundle definitions to a context variable
+    """
+    return get_bundles()
