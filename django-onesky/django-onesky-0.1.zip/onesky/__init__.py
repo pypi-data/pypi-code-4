@@ -1,0 +1,5 @@
+__author__ = 'Chris Lam'
+__email__ = 'chris@oneyskyapp.com'
+__copyright__ = 'Copyright (c) OneSky Inc.'
+__description__ = 'OneSky inline translation library for Django'
+__version__ = '0.1'
