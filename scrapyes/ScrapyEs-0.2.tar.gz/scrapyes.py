@@ -1,0 +1,26 @@
+from scrapy import signals
+from scrapy.exceptions import NotConfigured
+from pyes import ES
+
+class Sender(object):
+
+    def __init__(self, crawler):
+        uri = "%s:%d" % (crawler.settings['ELASTICSEARCH_SERVER'], crawler.settings['ELASTICSEARCH_PORT'])
+        self.es = ES([uri], bulk_size=crawler.settings['ELASTICSEARCH_BULK_SIZE'])
+        self.index = crawler.settings['ELASTICSEARCH_INDEX']
+        self.type_in_index = crawler.settings['ELASTICSEARCH_TYPE']
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        # instantiate the extension object
+        ext = cls(crawler)
+        # connect the extension object to signals
+        crawler.signals.connect(ext.item_scraped, signal=signals.item_scraped)
+        # return the extension object	
+        return ext
+
+    def item_scraped(self, item, spider):
+        self.store(item, spider)
+
+    def store(self, item, spider):
+        self.es.index(dict(item), self.index, self.type_in_index, bulk=True)
