@@ -1,0 +1,2 @@
+class UpgradeRequiredError(Exception):
+    pass
