@@ -1,0 +1,10 @@
+__version__ = "0.1"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(detached from v0.1)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = 'e0e986aa2a6e31fac03c940ccda5e96f9420eed6'
+__git_head_subject__ = 'Finished release v0.1.'
+__git_head_message__ = '* release/v0.1:\n  TRIVIAL removing bootstrap.py\n  support Windows\n  support Python 3\n  update buildout.cfg\n  update buildout version\n  empty commit after version v0.0.2'
+__git_dirty_diff__ = ''
