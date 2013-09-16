@@ -1,0 +1,44 @@
+from setuptools import setup, find_packages
+import sys
+
+kwargs = {'name': 'Glymur',
+          'description': 'Tools for accessing JPEG2000 files',
+          'long_description': open('README.md').read(),
+          'author': 'John Evans',
+          'author_email': 'john.g.evans.ne at gmail dot com',
+          'url': 'https://github.com/quintusdias/glymur',
+          'packages': ['glymur', 'glymur.data', 'glymur.test', 'glymur.lib',
+                       'glymur.lib.test'],
+          'package_data': {'glymur': ['data/*.jp2', 'data/*.j2k']},
+          'scripts': ['bin/jp2dump'],
+          'license': 'MIT',
+          'test_suite': 'glymur.test'}
+
+instllrqrs = ['numpy>=1.4.1']
+if sys.hexversion < 0x03030000:
+    instllrqrs.append('contextlib2>=0.4')
+    instllrqrs.append('mock>=1.0.1')
+if sys.hexversion < 0x02070000:
+    instllrqrs.append('ordereddict>=1.1')
+    instllrqrs.append('unittest2>=0.5.1')
+kwargs['install_requires'] = instllrqrs
+
+clssfrs = ["Programming Language :: Python",
+           "Programming Language :: Python :: 2.6",
+           "Programming Language :: Python :: 2.7",
+           "Programming Language :: Python :: 3.3",
+           "Programming Language :: Python :: Implementation :: CPython",
+           "License :: OSI Approved :: MIT License",
+           "Development Status :: 5 - Production/Stable",
+           "Operating System :: MacOS",
+           "Operating System :: POSIX :: Linux",
+           "Operating System :: Microsoft :: Windows :: Windows XP",
+           "Intended Audience :: Science/Research",
+           "Intended Audience :: Information Technology",
+           "Topic :: Software Development :: Libraries :: Python Modules"]
+kwargs['classifiers'] = clssfrs
+
+import glymur
+kwargs['version'] = glymur.version.version
+
+setup(**kwargs)
