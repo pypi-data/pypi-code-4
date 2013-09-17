@@ -1,0 +1,10 @@
+__version__ = "0.1.9"
+__git_commiter_name__ = "Arnon Yaari"
+__git_commiter_email__ = "arnony@infinidat.com"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = 'cd13b473d6aef68520d1961be6cb88b7c805c274'
+__git_head_subject__ = 'HIP-736 preserver order from /etc/filesystems in get_creatable_file_systems'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
