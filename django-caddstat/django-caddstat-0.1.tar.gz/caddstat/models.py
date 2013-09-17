@@ -1,0 +1,3 @@
+"""
+CADD Stat model definitions
+"""
