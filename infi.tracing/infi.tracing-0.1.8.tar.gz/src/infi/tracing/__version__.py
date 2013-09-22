@@ -1,0 +1,10 @@
+__version__ = "0.1.8"
+__git_commiter_name__ = "Tal Yalon"
+__git_commiter_email__ = "tal.yalon@gmail.com"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '0739db161841ce7f38a09c40c76532ec2595c893'
+__git_head_subject__ = 'TRIVIAL: added SyslogWriter and RFC 5424-style syslog formatting, and sending to syslog via UDP/UNIX sockets'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
