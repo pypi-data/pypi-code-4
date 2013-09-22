@@ -1,0 +1,10 @@
+__version__ = "0.1.9"
+__git_commiter_name__ = "Tal Yalon"
+__git_commiter_email__ = "tal.yalon@gmail.com"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '1c9c3ae6b53697af66c0d93c598a2dbb9818e088'
+__git_head_subject__ = 'TRIVIAL fixed borken SyslogWriter arg passing'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
