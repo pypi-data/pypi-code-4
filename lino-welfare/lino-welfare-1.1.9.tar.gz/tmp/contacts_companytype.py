@@ -1,0 +1,20 @@
+# -*- coding: UTF-8 -*-
+# all objects() from table contacts_companytype:
+loader.save(create_contacts_companytype(1,[u'Public Limited Company', u'Soci\xe9t\xe9 Anonyme', u'Aktiengesellschaft', u'Naamloze Vennootschap'],[u'', u'SA', u'AG', u'NV']))
+loader.save(create_contacts_companytype(2,[u'Limited Liability Company', u'Soci\xe9t\xe9 Priv\xe9e \xe0 Responsabilit\xe9 Limit\xe9e', u'Private Gesellschaft mit beschr\xe4nkter Haft', u'Besloten Vennootschap met Beperkte Aansprakelijkheid'],[u'', u'SPRL', u'PGmbH', u'BVBA']))
+loader.save(create_contacts_companytype(3,[u'One-person Private Limited Company', u"Soci\xe9t\xe9 d'Une Personne \xe0 Responsabilit\xe9 Limit\xe9e", u'', u'Eenpersoons Beslotenvennootschap met Beperkte Aansprakelijkheid'],[u'', u'SPRLU', u'', u'EBVBA']))
+loader.save(create_contacts_companytype(4,[u'Cooperative Company with Limited Liability', u'Soci\xe9t\xe9 Coop\xe9rative \xe0 Responsabilit\xe9 Limit\xe9e', u'', u'Cooperatieve Vennootschap met Beperkte Aansprakelijkheid'],[u'', u'SCRL', u'', u'CVBA']))
+loader.save(create_contacts_companytype(5,[u'Cooperative Company with Unlimited Liability', u'Soci\xe9t\xe9 Coop\xe9rative \xe0 Responsabilit\xe9 Illimit\xe9e', u'', u'Cooperatieve Vennootschap met Onbeperkte Aansprakelijkheid'],[u'', u'SCRI', u'', u'CVOA']))
+loader.save(create_contacts_companytype(6,[u'General Partnership', u'Soci\xe9t\xe9 en Nom Collectif', u'', u'Comm VA (Commanditaire Vennootschap op Aandelen'],[u'', u'SNC', u'', u'']))
+loader.save(create_contacts_companytype(7,[u'Limited Partnership', u'Soci\xe9t\xe9 en Commandite Simple', u'', u'Gewone Commanditaire Vennootschap'],[u'', u'SCS', u'', u'Comm V']))
+loader.save(create_contacts_companytype(8,[u'Non-stock Corporation', u'Soci\xe9t\xe9 de Droit Commun', u'Gesellschaft \xf6ffentlichen Rechts', u'Maatschap'],[u'', u'', u'', u'']))
+loader.save(create_contacts_companytype(9,[u'Charity/Company established for social purposes', u'Association sans But Lucratif', u'Vereinigung ohne Gewinnabsicht', u'Vereniging Zonder Winstoogmerk'],[u'', u'ASBL', u'V.o.G.', u'VZW']))
+loader.save(create_contacts_companytype(10,[u'Cooperative Company', u'Soci\xe9t\xe9 Coop\xe9rative', u'Genossenschaft', u'Cooperatieve Vennootschap'],[u'', u'SC', u'', u'CV']))
+loader.save(create_contacts_companytype(11,[u'Company', u'Soci\xe9t\xe9', u'Firma', u'Firma'],[u'', u'', u'', u'']))
+loader.save(create_contacts_companytype(12,[u'Public service', u'Service Public', u'\xd6ffentlicher Dienst', u''],[u'', u'', u'', u'']))
+loader.save(create_contacts_companytype(13,[u'Ministry', u'Minist\xe8re', u'Ministerium', u''],[u'', u'', u'', u'']))
+loader.save(create_contacts_companytype(14,[u'School', u'\xe9cole', u'Schule', u''],[u'', u'', u'', u'']))
+loader.save(create_contacts_companytype(15,[u'Freelancer', u'Travailleur libre', u'Freier Mitarbeiter', u'Freelacer'],[u'', u'', u'', u'']))
+loader.save(create_contacts_companytype(16,[u'Sole proprietorship', u'Entreprise individuelle', u'Einzelunternehmen', u'Eenmanszaak'],[u'', u'', u'', u'']))
+
+loader.flush_deferred_objects()

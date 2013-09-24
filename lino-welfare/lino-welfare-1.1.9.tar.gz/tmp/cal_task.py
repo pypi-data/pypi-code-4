@@ -1,0 +1,20 @@
+# -*- coding: UTF-8 -*-
+# all objects() from table cal_task:
+loader.save(create_cal_task(1,isip_Contract,2,5,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),179,date(2013,10,8),None,u'Projet termine dans un mois',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(2,jobs_Contract,2,5,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),123,date(2014,11,28),None,u'Projet termine dans un mois',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(3,isip_Contract,3,5,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),178,date(2013,8,27),None,u'Projet termine dans un mois',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(4,jobs_Contract,3,7,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),151,date(2015,7,7),None,u'Projet termine dans un mois',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(5,jobs_Contract,4,6,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),126,date(2014,5,28),None,u'Vertrag endet in einem Monat',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(6,isip_Contract,6,5,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),136,date(2014,3,25),None,u'Projet termine dans un mois',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(7,jobs_Contract,6,5,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),180,date(2015,5,28),None,u'Projet termine dans un mois',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(8,jobs_Contract,7,7,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),140,date(2013,12,9),None,u'Projet termine dans un mois',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(9,jobs_Contract,8,6,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),143,date(2014,8,10),None,u'Vertrag endet in einem Monat',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(10,jobs_Contract,9,6,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),146,date(2014,12,9),None,u'Vertrag endet in einem Monat',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(11,jobs_Contract,10,5,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),156,date(2014,2,10),None,u'Projet termine dans un mois',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(12,jobs_Contract,11,7,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),160,date(2014,6,9),None,u'Projet termine dans un mois',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(13,isip_Contract,12,9,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),164,date(2013,8,27),None,u'Vertrag endet in einem Monat',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(14,jobs_Contract,12,6,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),165,date(2015,2,10),None,u'Vertrag endet in einem Monat',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(15,jobs_Contract,13,6,dt(2013,8,18,7,4,26),dt(2013,8,18,7,4,26),167,date(2013,12,19),None,u'Vertrag endet in einem Monat',u'',u'',None,u'30',0,1,None,None,None,'10'))
+loader.save(create_cal_task(16,None,None,3,dt(2013,8,19,6,28,54),dt(2013,8,19,6,29,48),None,date(2013,8,12),None,u'test',u'',u'',None,u'30',0,None,None,None,None,'20'))
+
+loader.flush_deferred_objects()
