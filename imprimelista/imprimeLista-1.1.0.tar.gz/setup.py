@@ -1,0 +1,13 @@
+from distutils.core import setup
+
+setup	(
+	name		= 'imprimeLista',
+	version		= '1.1.0',
+	py_modules 	= ['imprimeLista'],
+	author		= 'alissoncamara',
+	author_email	= 'alisson.paulineli.inter@gmail.com',
+	url		= '',
+	description	= 'Imprime listas simples e aninhadas com recursividade cajo haja aninhamento de listas',
+	)
+		
+
