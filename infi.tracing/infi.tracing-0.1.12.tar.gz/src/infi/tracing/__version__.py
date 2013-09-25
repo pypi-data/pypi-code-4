@@ -1,0 +1,10 @@
+__version__ = "0.1.12"
+__git_commiter_name__ = "Tal Yalon"
+__git_commiter_email__ = "tal.yalon@gmail.com"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '19738a658f75d9fd4cceb7c26a05194eda1708b3'
+__git_head_subject__ = 'IZBOX-2001'
+__git_head_message__ = '- now dynamically allocating trace messages (when creating the trace message buffer) so we can have different message size for logs and traces\n- added C++ tests (probably will only run on Ubuntu) under tests/cpp_tests.sh'
+__git_dirty_diff__ = ''
