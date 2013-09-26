@@ -1,0 +1,2 @@
+class FaneryException(Exception):
+    pass
