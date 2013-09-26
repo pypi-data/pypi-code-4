@@ -1,0 +1,69 @@
+from setuptools import setup
+
+def readme():
+    with open('README.md') as f:
+        return f.read()
+
+setup(name='ecohydrolib',
+      version='1.12',
+      description='Libraries and command-line scripts for performing ecohydrology data preparation workflows.',
+      long_description=readme(),
+      classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: BSD License',
+        'Natural Language :: English',
+        'Operating System :: Unix',
+        'Topic :: Scientific/Engineering :: GIS'        
+      ],
+      url='https://github.com/selimnairb/EcohydrologyWorkflowLib',
+      author='Brian Miles',
+      author_email='brian_miles@unc.edu',
+      license='BSD',
+      packages=['ecohydrolib', 
+                'ecohydrolib.climatedata',
+                'ecohydrolib.hydro1k',
+                'ecohydrolib.nhdplus2',
+                'ecohydrolib.nlcd',
+                'ecohydrolib.solim',
+                'ecohydrolib.spatialdata',
+                'ecohydrolib.ssurgo',
+                'ecohydrolib.tests',
+                'ecohydrolib.wcs4dem' 
+                ],
+      install_requires=[
+        #'GDAL', # GDAL does not build under OS X easy_install/PIP
+        'pyproj==1.9.2',
+        'numpy',
+        'lxml',
+        'PySimpleSOAP',
+        'OWSLib',
+        'oset',
+        'httplib2',
+        'shapely'
+      ],
+      scripts=['bin/DumpClimateStationInfo.py',
+               'bin/DumpMetadataToiRODSXML.py',
+               'bin/GenerateSoilPropertyRastersFromSOLIM.py',
+               'bin/GenerateSoilPropertyRastersFromSSURGO.py',
+               'bin/GetBoundingboxFromStudyareaShapefile.py',
+               'bin/GetCatchmentShapefileForHYDRO1kBasins.py',
+               'bin/GetCatchmentShapefileForNHDStreamflowGage.py',
+               'bin/GetDEMExplorerDEMForBoundingbox.py',
+               'bin/GetGHCNDailyClimateDataForBoundingboxCentroid.py',
+               'bin/GetGHCNDailyClimateDataForStationsInBoundingbox.py',
+               'bin/GetHYDRO1kDEMForBoundingbox.py',
+               'bin/GetNHDStreamflowGageIdentifiersAndLocation.py',
+               'bin/GetNLCDForDEMExtent.py',
+               'bin/GetSSURGOFeaturesForBoundingbox.py',
+               'bin/RegisterDEM.py',
+               'bin/RegisterGage.py',
+               'bin/RegisterRaster.py',
+               'bin/RunCmd.py',
+               'bin/GHCNDSetup/GHCNDSetup.py',
+               'bin/NHDPlusV2Setup/NHDPlusV2Setup.py',
+               'cgi/GetCatchmentFeaturesForStreamflowGage',
+               'cgi/LocateStreamflowGage'
+      ],
+      zip_safe=False)
