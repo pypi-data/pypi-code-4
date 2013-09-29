@@ -1,0 +1,146 @@
+#!/usr/bin/env python
+# vim: set fileencoding=utf-8:
+
+from setuptools import setup
+from setuptools.command.install import install
+from distutils.command.install_data import install_data
+from glob import glob
+from grp import getgrnam
+from pwd import getpwnam
+import os
+import subprocess
+import sys
+
+
+def glob_files(pattern):
+    return [f for f in glob(pattern) if os.path.isfile(f)]
+
+# Files to install:
+data_files = [
+    ('/etc/cron.d', ['share/cron.d/ardj']),
+    ('/etc/init', glob_files('share/upstart/*.conf')),
+    ('/etc/init.d', glob_files('share/init.d/*')),
+    ('/etc/logrotate.d', glob_files('share/logrotate.d/*')),
+    ('/etc/rsyslog.d', glob_files('share/rsyslog.d/*')),
+    #('/etc/sudoers.d', glob_files('share/sudoers.d/*')),
+    #('usr/share/ardj/database', glob_files('share/database/*.sql')),
+    ('usr/share/ardj/failure', ['share/audio/stefano_mocini_leaving_you_failure_edit.ogg']),
+    ('usr/share/ardj/samples', ['share/audio/cubic_undead.mp3', 'share/audio/successful_install.ogg']),
+    ('usr/share/ardj/shell-extensions/zsh', ['share/shell-extensions/zsh/_ardj']),
+    ('usr/share/doc/ardj', ('NEWS', 'README.txt', 'TODO')),
+    ('usr/share/doc/ardj/examples', glob_files('share/doc/examples/*')),
+    ('usr/share/doc/ardj/html/', glob_files('share/doc/html/*')),
+    ('usr/share/man/man1', ['share/doc/man/ardj.1']),
+    ('usr/lib/ardj', ['bin/ardj-next-track', 'bin/ezstream-meta']),
+]
+
+classifiers = [
+    'License :: OSI Approved :: GNU General Public License (GPL)',
+    'Natural Language :: English',
+    'Operating System :: Unix',
+    'Programming Language :: Python',
+    'Topic :: Internet',
+    ]
+
+
+class my_install_data(install_data):
+    """Extended data installer for setuptools
+
+    Respects already installed config files, choses between upstart and
+    sysvinit, initializes the database on first install."""
+
+    editable = ("/etc/ardj.yaml", "/etc/ezstream.xml")
+
+    def __init__(self, *args, **kwargs):
+        self.have_upstart = os.path.exists("/sbin/initctl")
+        return install_data.__init__(self, *args, **kwargs)
+
+    def copy_file(self, src, dst):
+        """Copies file src to directory dst, returns the resulting path and an
+        unknown integer.  This extension prevents overwriting existing files in
+        some folders."""
+        target = os.path.join(dst, os.path.basename(src))
+
+        if target in self.editable and os.path.exists(target):
+            res = target, 0
+
+        elif not self.have_upstart and src.startswith("share/upstart/"):
+            res = target, 0
+
+        elif self.have_upstart and src.startswith("share/init.d/"):
+            res = target, 0
+
+        else:
+            res = install_data.copy_file(self, src, dst)
+
+        return res
+
+
+class my_install(install):
+    def run(self):
+        """Runs post-install scripts.  This should rather go to the install
+        command, but subclassing that freaks PIP out, so let's do it here."""
+        res = install.run(self)
+
+        commands = []
+
+        if os.path.exists("/sbin/initctl"):
+            commands.append(("initctl", "reload-configuration"))
+        else:
+            for script in "ardj-ezstream", "ardj-ices", "ardj-jabber", "ardj-server":
+                if not self.dry_run:
+                    os.chmod(os.path.join("/etc/init.d", script), 0755)
+                commands.append(("update-rc.d", script, "defaults"))
+
+        try:
+            getgrnam("ardj")
+        except KeyError:
+            commands.append(("addgroup", "--system", "ardj"))
+
+        try:
+            getpwnam("ardj")
+        except KeyError:
+            commands.append(("adduser", "--quiet", "--system", "--ingroup",
+                "ardj", "--disabled-login", "--disabled-password", "--home",
+                "/var/lib/ardj", "--no-create-home", "--gecos", "Artificial DJ",
+                "ardj"))
+
+        for path in "/var/lib/ardj", "/var/lib/ardj/incoming", "/var/lib/ardj/music":
+            commands.append(("install", "-d", "-o", "ardj", "-g", "ardj", "-m", "0775", path))
+
+        commands.append(("chmod", "+s", "/var/lib/ardj", "/var/lib/ardj/incoming"))
+
+        if not os.path.exists("/var/lib/ardj/database.sqlite"):
+            commands.append(("ardj", "db-init"))
+            commands.append(("chmod", "0664", "/var/lib/ardj/database.sqlite"))
+            commands.append(("chown", "ardj:ardj", "/var/lib/ardj/database.sqlite"))
+
+            for sample in glob_files(os.path.join(self.install_data, "share/ardj/samples/*")):
+                commands.append(("install", "-m", "0664", sample, "/var/lib/ardj/incoming"))
+            commands.append(("ardj", "add-incoming-tracks"))
+
+        for command in commands:
+            print "Running: %s" % " ".join(command)
+            if not self.dry_run:
+                subprocess.Popen(command).wait()
+
+        return res
+
+
+setup(
+    author = 'Justin Forest',
+    author_email = 'hex@umonkey.net',
+    classifiers = classifiers,
+    data_files = data_files,
+    description = 'An artificial DJ for you internet radio.',
+    long_description = 'An artificial DJ for your icecast2 based internet radio.  Consists of an ices python playlist module and a jabber bot which lets you control that radio.  Supports sending messages to twitter and other unnecessary stuff.',
+    license = 'GNU GPL',
+    name = 'ardj',
+    package_dir = { '': 'src' },
+    packages = [ 'ardj', 'ardj.xmpp' ],
+    requires = [ 'yaml', 'mutagen', 'dns', 'socksipy', 'simplejson', 'oauth2' ],
+    scripts = [ 'bin/ardj', ],
+    cmdclass = { 'install': my_install, 'install_data': my_install_data },
+    url = 'http://umonkey.net/ardj/',
+    version = '1.2.0'
+)
