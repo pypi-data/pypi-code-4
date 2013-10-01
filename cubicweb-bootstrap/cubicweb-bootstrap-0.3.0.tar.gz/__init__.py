@@ -1,0 +1,4 @@
+"""cubicweb-bootstrap application package
+
+
+"""
