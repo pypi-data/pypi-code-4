@@ -1,0 +1,260 @@
+'''
+tzinfo timezone information for America/Scoresbysund.
+
+Generated from the Olson timezone database:
+    ftp://elsie.nci.nih.gov/pub/tz*.tar.gz
+'''
+
+from pytz.tzinfo import DstTzInfo
+from pytz.tzinfo import memorized_datetime as datetime
+from pytz.tzinfo import memorized_ttinfo as ttinfo
+
+class Scoresbysund(DstTzInfo):
+    '''America/Scoresbysund timezone definition. See datetime.tzinfo for details'''
+
+    _zone = 'America/Scoresbysund'
+
+    _utc_transition_times = [
+        datetime(   1,  1,  1,  0,  0,  0), #  -5340     0 LMT
+        datetime(1916,  7, 28,  1, 29,  0), #  -7200     0 CGT
+        datetime(1980,  4,  6,  4,  0,  0), #  -3600  3600 CGST
+        datetime(1980,  9, 28,  4,  0,  0), #  -7200     0 CGT
+        datetime(1981,  3, 29,  2,  0,  0), #      0  7200 EGST
+        datetime(1981,  9, 27,  1,  0,  0), #  -3600     0 EGT
+        datetime(1982,  3, 28,  1,  0,  0), #      0  3600 EGST
+        datetime(1982,  9, 26,  1,  0,  0), #  -3600     0 EGT
+        datetime(1983,  3, 27,  1,  0,  0), #      0  3600 EGST
+        datetime(1983,  9, 25,  1,  0,  0), #  -3600     0 EGT
+        datetime(1984,  3, 25,  1,  0,  0), #      0  3600 EGST
+        datetime(1984,  9, 30,  1,  0,  0), #  -3600     0 EGT
+        datetime(1985,  3, 31,  1,  0,  0), #      0  3600 EGST
+        datetime(1985,  9, 29,  1,  0,  0), #  -3600     0 EGT
+        datetime(1986,  3, 30,  1,  0,  0), #      0  3600 EGST
+        datetime(1986,  9, 28,  1,  0,  0), #  -3600     0 EGT
+        datetime(1987,  3, 29,  1,  0,  0), #      0  3600 EGST
+        datetime(1987,  9, 27,  1,  0,  0), #  -3600     0 EGT
+        datetime(1988,  3, 27,  1,  0,  0), #      0  3600 EGST
+        datetime(1988,  9, 25,  1,  0,  0), #  -3600     0 EGT
+        datetime(1989,  3, 26,  1,  0,  0), #      0  3600 EGST
+        datetime(1989,  9, 24,  1,  0,  0), #  -3600     0 EGT
+        datetime(1990,  3, 25,  1,  0,  0), #      0  3600 EGST
+        datetime(1990,  9, 30,  1,  0,  0), #  -3600     0 EGT
+        datetime(1991,  3, 31,  1,  0,  0), #      0  3600 EGST
+        datetime(1991,  9, 29,  1,  0,  0), #  -3600     0 EGT
+        datetime(1992,  3, 29,  1,  0,  0), #      0  3600 EGST
+        datetime(1992,  9, 27,  1,  0,  0), #  -3600     0 EGT
+        datetime(1993,  3, 28,  1,  0,  0), #      0  3600 EGST
+        datetime(1993,  9, 26,  1,  0,  0), #  -3600     0 EGT
+        datetime(1994,  3, 27,  1,  0,  0), #      0  3600 EGST
+        datetime(1994,  9, 25,  1,  0,  0), #  -3600     0 EGT
+        datetime(1995,  3, 26,  1,  0,  0), #      0  3600 EGST
+        datetime(1995,  9, 24,  1,  0,  0), #  -3600     0 EGT
+        datetime(1996,  3, 31,  1,  0,  0), #      0  3600 EGST
+        datetime(1996, 10, 27,  1,  0,  0), #  -3600     0 EGT
+        datetime(1997,  3, 30,  1,  0,  0), #      0  3600 EGST
+        datetime(1997, 10, 26,  1,  0,  0), #  -3600     0 EGT
+        datetime(1998,  3, 29,  1,  0,  0), #      0  3600 EGST
+        datetime(1998, 10, 25,  1,  0,  0), #  -3600     0 EGT
+        datetime(1999,  3, 28,  1,  0,  0), #      0  3600 EGST
+        datetime(1999, 10, 31,  1,  0,  0), #  -3600     0 EGT
+        datetime(2000,  3, 26,  1,  0,  0), #      0  3600 EGST
+        datetime(2000, 10, 29,  1,  0,  0), #  -3600     0 EGT
+        datetime(2001,  3, 25,  1,  0,  0), #      0  3600 EGST
+        datetime(2001, 10, 28,  1,  0,  0), #  -3600     0 EGT
+        datetime(2002,  3, 31,  1,  0,  0), #      0  3600 EGST
+        datetime(2002, 10, 27,  1,  0,  0), #  -3600     0 EGT
+        datetime(2003,  3, 30,  1,  0,  0), #      0  3600 EGST
+        datetime(2003, 10, 26,  1,  0,  0), #  -3600     0 EGT
+        datetime(2004,  3, 28,  1,  0,  0), #      0  3600 EGST
+        datetime(2004, 10, 31,  1,  0,  0), #  -3600     0 EGT
+        datetime(2005,  3, 27,  1,  0,  0), #      0  3600 EGST
+        datetime(2005, 10, 30,  1,  0,  0), #  -3600     0 EGT
+        datetime(2006,  3, 26,  1,  0,  0), #      0  3600 EGST
+        datetime(2006, 10, 29,  1,  0,  0), #  -3600     0 EGT
+        datetime(2007,  3, 25,  1,  0,  0), #      0  3600 EGST
+        datetime(2007, 10, 28,  1,  0,  0), #  -3600     0 EGT
+        datetime(2008,  3, 30,  1,  0,  0), #      0  3600 EGST
+        datetime(2008, 10, 26,  1,  0,  0), #  -3600     0 EGT
+        datetime(2009,  3, 29,  1,  0,  0), #      0  3600 EGST
+        datetime(2009, 10, 25,  1,  0,  0), #  -3600     0 EGT
+        datetime(2010,  3, 28,  1,  0,  0), #      0  3600 EGST
+        datetime(2010, 10, 31,  1,  0,  0), #  -3600     0 EGT
+        datetime(2011,  3, 27,  1,  0,  0), #      0  3600 EGST
+        datetime(2011, 10, 30,  1,  0,  0), #  -3600     0 EGT
+        datetime(2012,  3, 25,  1,  0,  0), #      0  3600 EGST
+        datetime(2012, 10, 28,  1,  0,  0), #  -3600     0 EGT
+        datetime(2013,  3, 31,  1,  0,  0), #      0  3600 EGST
+        datetime(2013, 10, 27,  1,  0,  0), #  -3600     0 EGT
+        datetime(2014,  3, 30,  1,  0,  0), #      0  3600 EGST
+        datetime(2014, 10, 26,  1,  0,  0), #  -3600     0 EGT
+        datetime(2015,  3, 29,  1,  0,  0), #      0  3600 EGST
+        datetime(2015, 10, 25,  1,  0,  0), #  -3600     0 EGT
+        datetime(2016,  3, 27,  1,  0,  0), #      0  3600 EGST
+        datetime(2016, 10, 30,  1,  0,  0), #  -3600     0 EGT
+        datetime(2017,  3, 26,  1,  0,  0), #      0  3600 EGST
+        datetime(2017, 10, 29,  1,  0,  0), #  -3600     0 EGT
+        datetime(2018,  3, 25,  1,  0,  0), #      0  3600 EGST
+        datetime(2018, 10, 28,  1,  0,  0), #  -3600     0 EGT
+        datetime(2019,  3, 31,  1,  0,  0), #      0  3600 EGST
+        datetime(2019, 10, 27,  1,  0,  0), #  -3600     0 EGT
+        datetime(2020,  3, 29,  1,  0,  0), #      0  3600 EGST
+        datetime(2020, 10, 25,  1,  0,  0), #  -3600     0 EGT
+        datetime(2021,  3, 28,  1,  0,  0), #      0  3600 EGST
+        datetime(2021, 10, 31,  1,  0,  0), #  -3600     0 EGT
+        datetime(2022,  3, 27,  1,  0,  0), #      0  3600 EGST
+        datetime(2022, 10, 30,  1,  0,  0), #  -3600     0 EGT
+        datetime(2023,  3, 26,  1,  0,  0), #      0  3600 EGST
+        datetime(2023, 10, 29,  1,  0,  0), #  -3600     0 EGT
+        datetime(2024,  3, 31,  1,  0,  0), #      0  3600 EGST
+        datetime(2024, 10, 27,  1,  0,  0), #  -3600     0 EGT
+        datetime(2025,  3, 30,  1,  0,  0), #      0  3600 EGST
+        datetime(2025, 10, 26,  1,  0,  0), #  -3600     0 EGT
+        datetime(2026,  3, 29,  1,  0,  0), #      0  3600 EGST
+        datetime(2026, 10, 25,  1,  0,  0), #  -3600     0 EGT
+        datetime(2027,  3, 28,  1,  0,  0), #      0  3600 EGST
+        datetime(2027, 10, 31,  1,  0,  0), #  -3600     0 EGT
+        datetime(2028,  3, 26,  1,  0,  0), #      0  3600 EGST
+        datetime(2028, 10, 29,  1,  0,  0), #  -3600     0 EGT
+        datetime(2029,  3, 25,  1,  0,  0), #      0  3600 EGST
+        datetime(2029, 10, 28,  1,  0,  0), #  -3600     0 EGT
+        datetime(2030,  3, 31,  1,  0,  0), #      0  3600 EGST
+        datetime(2030, 10, 27,  1,  0,  0), #  -3600     0 EGT
+        datetime(2031,  3, 30,  1,  0,  0), #      0  3600 EGST
+        datetime(2031, 10, 26,  1,  0,  0), #  -3600     0 EGT
+        datetime(2032,  3, 28,  1,  0,  0), #      0  3600 EGST
+        datetime(2032, 10, 31,  1,  0,  0), #  -3600     0 EGT
+        datetime(2033,  3, 27,  1,  0,  0), #      0  3600 EGST
+        datetime(2033, 10, 30,  1,  0,  0), #  -3600     0 EGT
+        datetime(2034,  3, 26,  1,  0,  0), #      0  3600 EGST
+        datetime(2034, 10, 29,  1,  0,  0), #  -3600     0 EGT
+        datetime(2035,  3, 25,  1,  0,  0), #      0  3600 EGST
+        datetime(2035, 10, 28,  1,  0,  0), #  -3600     0 EGT
+        datetime(2036,  3, 30,  1,  0,  0), #      0  3600 EGST
+        datetime(2036, 10, 26,  1,  0,  0), #  -3600     0 EGT
+        datetime(2037,  3, 29,  1,  0,  0), #      0  3600 EGST
+        datetime(2037, 10, 25,  1,  0,  0), #  -3600     0 EGT
+        ]
+
+    _transition_info = [
+        ttinfo( -5340,      0,  'LMT'),
+        ttinfo( -7200,      0,  'CGT'),
+        ttinfo( -3600,   3600, 'CGST'),
+        ttinfo( -7200,      0,  'CGT'),
+        ttinfo(     0,   7200, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ttinfo(     0,   3600, 'EGST'),
+        ttinfo( -3600,      0,  'EGT'),
+        ]
+
+Scoresbysund = Scoresbysund() # Singleton
+

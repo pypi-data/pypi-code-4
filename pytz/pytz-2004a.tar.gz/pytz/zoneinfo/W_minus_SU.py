@@ -1,0 +1,284 @@
+'''
+tzinfo timezone information for W_minus_SU.
+
+Generated from the Olson timezone database:
+    ftp://elsie.nci.nih.gov/pub/tz*.tar.gz
+'''
+
+from pytz.tzinfo import DstTzInfo
+from pytz.tzinfo import memorized_datetime as datetime
+from pytz.tzinfo import memorized_ttinfo as ttinfo
+
+class W_minus_SU(DstTzInfo):
+    '''W_minus_SU timezone definition. See datetime.tzinfo for details'''
+
+    _zone = 'W_minus_SU'
+
+    _utc_transition_times = [
+        datetime(   1,  1,  1,  0,  0,  0), #   9000     0 MMT
+        datetime(1916,  7,  2, 21, 30,  0), #   9048     0 MMT
+        datetime(1917,  7,  1, 20, 29, 12), #  12648  3600 MST
+        datetime(1917, 12, 27, 20, 29, 12), #   9048     0 MMT
+        datetime(1918,  5, 31, 19, 29, 12), #  16248  7200 MDST
+        datetime(1918,  9, 15, 20, 29, 12), #  12648 -3600 MST
+        datetime(1919,  5, 31, 19, 29, 12), #  16248  3600 MDST
+        datetime(1919,  6, 30, 21, 29, 12), #  14400 -1848 MSD
+        datetime(1919,  8, 15, 20,  0,  0), #  10800     0 MSK
+        datetime(1921,  2, 14, 20,  0,  0), #  14400  3600 MSD
+        datetime(1921,  3, 20, 19,  0,  0), #  18000  3600 MSD
+        datetime(1921,  8, 31, 19,  0,  0), #  14400 -3600 MSD
+        datetime(1921,  9, 30, 20,  0,  0), #  10800     0 MSK
+        datetime(1922,  9, 30, 21,  0,  0), #   7200     0 EET
+        datetime(1930,  6, 20, 22,  0,  0), #  10800     0 MSK
+        datetime(1981,  3, 31, 21,  0,  0), #  14400  3600 MSD
+        datetime(1981,  9, 30, 20,  0,  0), #  10800     0 MSK
+        datetime(1982,  3, 31, 21,  0,  0), #  14400  3600 MSD
+        datetime(1982,  9, 30, 20,  0,  0), #  10800     0 MSK
+        datetime(1983,  3, 31, 21,  0,  0), #  14400  3600 MSD
+        datetime(1983,  9, 30, 20,  0,  0), #  10800     0 MSK
+        datetime(1984,  3, 31, 21,  0,  0), #  14400  3600 MSD
+        datetime(1984,  9, 29, 23,  0,  0), #  10800     0 MSK
+        datetime(1985,  3, 30, 23,  0,  0), #  14400  3600 MSD
+        datetime(1985,  9, 28, 23,  0,  0), #  10800     0 MSK
+        datetime(1986,  3, 29, 23,  0,  0), #  14400  3600 MSD
+        datetime(1986,  9, 27, 23,  0,  0), #  10800     0 MSK
+        datetime(1987,  3, 28, 23,  0,  0), #  14400  3600 MSD
+        datetime(1987,  9, 26, 23,  0,  0), #  10800     0 MSK
+        datetime(1988,  3, 26, 23,  0,  0), #  14400  3600 MSD
+        datetime(1988,  9, 24, 23,  0,  0), #  10800     0 MSK
+        datetime(1989,  3, 25, 23,  0,  0), #  14400  3600 MSD
+        datetime(1989,  9, 23, 23,  0,  0), #  10800     0 MSK
+        datetime(1990,  3, 24, 23,  0,  0), #  14400  3600 MSD
+        datetime(1990,  9, 29, 23,  0,  0), #  10800     0 MSK
+        datetime(1991,  3, 30, 23,  0,  0), #  10800     0 EEST
+        datetime(1991,  9, 29,  0,  0,  0), #   7200     0 EET
+        datetime(1992,  1, 19,  0,  0,  0), #  10800     0 MSK
+        datetime(1992,  3, 28, 20,  0,  0), #  14400  3600 MSD
+        datetime(1992,  9, 26, 19,  0,  0), #  10800     0 MSK
+        datetime(1993,  3, 27, 23,  0,  0), #  14400  3600 MSD
+        datetime(1993,  9, 25, 23,  0,  0), #  10800     0 MSK
+        datetime(1994,  3, 26, 23,  0,  0), #  14400  3600 MSD
+        datetime(1994,  9, 24, 23,  0,  0), #  10800     0 MSK
+        datetime(1995,  3, 25, 23,  0,  0), #  14400  3600 MSD
+        datetime(1995,  9, 23, 23,  0,  0), #  10800     0 MSK
+        datetime(1996,  3, 30, 23,  0,  0), #  14400  3600 MSD
+        datetime(1996, 10, 26, 23,  0,  0), #  10800     0 MSK
+        datetime(1997,  3, 29, 23,  0,  0), #  14400  3600 MSD
+        datetime(1997, 10, 25, 23,  0,  0), #  10800     0 MSK
+        datetime(1998,  3, 28, 23,  0,  0), #  14400  3600 MSD
+        datetime(1998, 10, 24, 23,  0,  0), #  10800     0 MSK
+        datetime(1999,  3, 27, 23,  0,  0), #  14400  3600 MSD
+        datetime(1999, 10, 30, 23,  0,  0), #  10800     0 MSK
+        datetime(2000,  3, 25, 23,  0,  0), #  14400  3600 MSD
+        datetime(2000, 10, 28, 23,  0,  0), #  10800     0 MSK
+        datetime(2001,  3, 24, 23,  0,  0), #  14400  3600 MSD
+        datetime(2001, 10, 27, 23,  0,  0), #  10800     0 MSK
+        datetime(2002,  3, 30, 23,  0,  0), #  14400  3600 MSD
+        datetime(2002, 10, 26, 23,  0,  0), #  10800     0 MSK
+        datetime(2003,  3, 29, 23,  0,  0), #  14400  3600 MSD
+        datetime(2003, 10, 25, 23,  0,  0), #  10800     0 MSK
+        datetime(2004,  3, 27, 23,  0,  0), #  14400  3600 MSD
+        datetime(2004, 10, 30, 23,  0,  0), #  10800     0 MSK
+        datetime(2005,  3, 26, 23,  0,  0), #  14400  3600 MSD
+        datetime(2005, 10, 29, 23,  0,  0), #  10800     0 MSK
+        datetime(2006,  3, 25, 23,  0,  0), #  14400  3600 MSD
+        datetime(2006, 10, 28, 23,  0,  0), #  10800     0 MSK
+        datetime(2007,  3, 24, 23,  0,  0), #  14400  3600 MSD
+        datetime(2007, 10, 27, 23,  0,  0), #  10800     0 MSK
+        datetime(2008,  3, 29, 23,  0,  0), #  14400  3600 MSD
+        datetime(2008, 10, 25, 23,  0,  0), #  10800     0 MSK
+        datetime(2009,  3, 28, 23,  0,  0), #  14400  3600 MSD
+        datetime(2009, 10, 24, 23,  0,  0), #  10800     0 MSK
+        datetime(2010,  3, 27, 23,  0,  0), #  14400  3600 MSD
+        datetime(2010, 10, 30, 23,  0,  0), #  10800     0 MSK
+        datetime(2011,  3, 26, 23,  0,  0), #  14400  3600 MSD
+        datetime(2011, 10, 29, 23,  0,  0), #  10800     0 MSK
+        datetime(2012,  3, 24, 23,  0,  0), #  14400  3600 MSD
+        datetime(2012, 10, 27, 23,  0,  0), #  10800     0 MSK
+        datetime(2013,  3, 30, 23,  0,  0), #  14400  3600 MSD
+        datetime(2013, 10, 26, 23,  0,  0), #  10800     0 MSK
+        datetime(2014,  3, 29, 23,  0,  0), #  14400  3600 MSD
+        datetime(2014, 10, 25, 23,  0,  0), #  10800     0 MSK
+        datetime(2015,  3, 28, 23,  0,  0), #  14400  3600 MSD
+        datetime(2015, 10, 24, 23,  0,  0), #  10800     0 MSK
+        datetime(2016,  3, 26, 23,  0,  0), #  14400  3600 MSD
+        datetime(2016, 10, 29, 23,  0,  0), #  10800     0 MSK
+        datetime(2017,  3, 25, 23,  0,  0), #  14400  3600 MSD
+        datetime(2017, 10, 28, 23,  0,  0), #  10800     0 MSK
+        datetime(2018,  3, 24, 23,  0,  0), #  14400  3600 MSD
+        datetime(2018, 10, 27, 23,  0,  0), #  10800     0 MSK
+        datetime(2019,  3, 30, 23,  0,  0), #  14400  3600 MSD
+        datetime(2019, 10, 26, 23,  0,  0), #  10800     0 MSK
+        datetime(2020,  3, 28, 23,  0,  0), #  14400  3600 MSD
+        datetime(2020, 10, 24, 23,  0,  0), #  10800     0 MSK
+        datetime(2021,  3, 27, 23,  0,  0), #  14400  3600 MSD
+        datetime(2021, 10, 30, 23,  0,  0), #  10800     0 MSK
+        datetime(2022,  3, 26, 23,  0,  0), #  14400  3600 MSD
+        datetime(2022, 10, 29, 23,  0,  0), #  10800     0 MSK
+        datetime(2023,  3, 25, 23,  0,  0), #  14400  3600 MSD
+        datetime(2023, 10, 28, 23,  0,  0), #  10800     0 MSK
+        datetime(2024,  3, 30, 23,  0,  0), #  14400  3600 MSD
+        datetime(2024, 10, 26, 23,  0,  0), #  10800     0 MSK
+        datetime(2025,  3, 29, 23,  0,  0), #  14400  3600 MSD
+        datetime(2025, 10, 25, 23,  0,  0), #  10800     0 MSK
+        datetime(2026,  3, 28, 23,  0,  0), #  14400  3600 MSD
+        datetime(2026, 10, 24, 23,  0,  0), #  10800     0 MSK
+        datetime(2027,  3, 27, 23,  0,  0), #  14400  3600 MSD
+        datetime(2027, 10, 30, 23,  0,  0), #  10800     0 MSK
+        datetime(2028,  3, 25, 23,  0,  0), #  14400  3600 MSD
+        datetime(2028, 10, 28, 23,  0,  0), #  10800     0 MSK
+        datetime(2029,  3, 24, 23,  0,  0), #  14400  3600 MSD
+        datetime(2029, 10, 27, 23,  0,  0), #  10800     0 MSK
+        datetime(2030,  3, 30, 23,  0,  0), #  14400  3600 MSD
+        datetime(2030, 10, 26, 23,  0,  0), #  10800     0 MSK
+        datetime(2031,  3, 29, 23,  0,  0), #  14400  3600 MSD
+        datetime(2031, 10, 25, 23,  0,  0), #  10800     0 MSK
+        datetime(2032,  3, 27, 23,  0,  0), #  14400  3600 MSD
+        datetime(2032, 10, 30, 23,  0,  0), #  10800     0 MSK
+        datetime(2033,  3, 26, 23,  0,  0), #  14400  3600 MSD
+        datetime(2033, 10, 29, 23,  0,  0), #  10800     0 MSK
+        datetime(2034,  3, 25, 23,  0,  0), #  14400  3600 MSD
+        datetime(2034, 10, 28, 23,  0,  0), #  10800     0 MSK
+        datetime(2035,  3, 24, 23,  0,  0), #  14400  3600 MSD
+        datetime(2035, 10, 27, 23,  0,  0), #  10800     0 MSK
+        datetime(2036,  3, 29, 23,  0,  0), #  14400  3600 MSD
+        datetime(2036, 10, 25, 23,  0,  0), #  10800     0 MSK
+        datetime(2037,  3, 28, 23,  0,  0), #  14400  3600 MSD
+        datetime(2037, 10, 24, 23,  0,  0), #  10800     0 MSK
+        ]
+
+    _transition_info = [
+        ttinfo(  9000,      0,  'MMT'),
+        ttinfo(  9048,      0,  'MMT'),
+        ttinfo( 12648,   3600,  'MST'),
+        ttinfo(  9048,      0,  'MMT'),
+        ttinfo( 16248,   7200, 'MDST'),
+        ttinfo( 12648,  -3600,  'MST'),
+        ttinfo( 16248,   3600, 'MDST'),
+        ttinfo( 14400,  -1848,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 18000,   3600,  'MSD'),
+        ttinfo( 14400,  -3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo(  7200,      0,  'EET'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 10800,      0, 'EEST'),
+        ttinfo(  7200,      0,  'EET'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ttinfo( 14400,   3600,  'MSD'),
+        ttinfo( 10800,      0,  'MSK'),
+        ]
+
+W_minus_SU = W_minus_SU() # Singleton
+
