@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+from distutils.core import setup
+import liquify
+
+setup(
+    author = liquify.__author__,
+    author_email = liquify.__email__,
+    classifiers = [
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'Programming Language :: Python :: 2',
+        'Topic :: Software Development :: Pre-processors',
+        ],
+    description = 'Minify Python 2 modules',
+    license = liquify.__license__,
+    long_description = open('README.rst').read(),
+    maintainer = liquify.__maintainer__,
+    maintainer_email = liquify.__email__,
+    name = 'liquify',
+    py_modules = ['liquify', 'test_liquify'],
+    url = 'https://github.com/fiatjaf/liquify',
+    version = liquify.__version__,
+    entry_points = {
+        'console_scripts': [
+            'liquify = liquify:main',
+        ]
+    }
+)
