@@ -1,0 +1,29 @@
+# -*- extra stuff goes here -*-
+from authoringcalibreprofile import IAuthoringCalibreProfile
+from authoringcontentaggregator import IAuthoringContentAggregator
+from authoringpublisheddocument import IAuthoringPublishedDocument
+from authoringconversionscollection import IAuthoringConversionsCollection
+from authoringcoverpage import IAuthoringCoverPage
+from authoringcontentpage import IAuthoringContentPage
+from authoringconversionfolder import IAuthoringConversionFolder
+
+from authoringcontentsfolder import IAuthoringContentsFolder
+
+from authoringtemplate import IAuthoringTemplate
+
+from authoringtemplatesfolder import IAuthoringTemplatesFolder
+
+from authoringimageresource import IAuthoringImageResource
+
+from authoringstylesheet import IAuthoringStylesheet
+
+from authoringbinaryresource import IAuthoringBinaryResource
+
+from authoringmastertemplate import IAuthoringMasterTemplate
+
+from authoringcontentfolder import IAuthoringContentFolder
+
+from authoringproject import IAuthoringProject
+
+from marker import IConsolidatedHTMLDocument
+from misc import *
