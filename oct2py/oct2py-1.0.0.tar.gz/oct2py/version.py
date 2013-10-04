@@ -1,0 +1,2 @@
+# THIS FILE IS GENERATED FROM THE oct2py SETUP.PY
+version = '1.0.0'
