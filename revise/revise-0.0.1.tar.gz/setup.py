@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+import os
+import sys
+
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+
+if sys.argv[-1] == 'publish':
+    os.system('python setup.py sdist upload')
+    sys.exit()
+
+
+packages = [
+    'revise'
+]
+
+setup(
+    name='revise',
+    version='0.0.1',
+    url='http://github.com/rhyselsmore/revise',
+    author='Rhys Elsmore',
+    author_email='me@rhys.io',
+    description='Simple Schemas for JSON Validation',
+    long_description=open('README.rst').read() + '\n\n' +
+        open('HISTORY.rst').read(),
+    package_dir={'revise': 'revise'},
+    packages=packages,
+    license=open('LICENSE').read(),
+    package_data={'': ['LICENSE']},
+    zip_safe=False,
+    platforms='any',
+    install_requires=[
+        'setuptools',
+    ],
+    classifiers=[
+        'Development Status :: 4 - Beta',
+    ]
+)
