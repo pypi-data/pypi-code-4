@@ -1,0 +1,20 @@
+# -*- coding: UTF-8 -*-
+# all objects() from table notes_notetype:
+loader.save(create_notes_notetype(1,[u'Beschluss', u'', u'', u''],u'',u'',False,u'Default.eml.html',False,u'',u'',False))
+loader.save(create_notes_notetype(2,[u'Konvention', u'', u'', u''],u'',u'',False,u'Default.eml.html',False,u'Einmaliges Dokument in Verbindung mit Arbeitsvertrag',u'',False))
+loader.save(create_notes_notetype(3,[u'Notiz', u'', u'', u''],u'',u'',False,u'Default.eml.html',False,u'Kontaktversuch, Gespr\xe4chsbericht, Telefonnotiz',u'',False))
+loader.save(create_notes_notetype(4,[u'Vorladung', u'', u'', u''],u'',u'',False,u'Default.eml.html',False,u'Einladung zu einem pers\xf6nlichen Gespr\xe4ch',u'',False))
+loader.save(create_notes_notetype(5,[u'\xdcbergabeblatt', u'', u'', u''],u'',u'',False,u'Default.eml.html',False,u'\xdcbergabeblatt vom allgemeinen Sozialdienst',u'',False))
+loader.save(create_notes_notetype(6,[u'Neuantrag', u'', u'', u''],u'',u'',False,u'Default.eml.html',False,u'',u'',False))
+loader.save(create_notes_notetype(7,[u'Antragsformular', u'', u'', u''],u'',u'',False,u'Default.eml.html',False,u'',u'',False))
+loader.save(create_notes_notetype(8,[u'Auswertungsbogen allgemein', u'', u'', u''],u'rtf',u'Auswertungsbogen_allgemein.rtf',False,u'Default.eml.html',False,u'',u'',False))
+loader.save(create_notes_notetype(9,[u'Lebenslauf', u'', u'', u''],u'appyrtf',u'cv.odt',False,u'Default.eml.html',False,u'',u'',False))
+loader.save(create_notes_notetype(10,[u'Erstgespr\xe4ch', u'', u'', u''],u'',u'',False,u'Default.eml.html',False,u'',u'',False))
+loader.save(create_notes_notetype(11,[u'Foreigner income certificate', u'Attestation allocation \xe9trangers', u'Bescheinigung Ausl\xe4nderbeihilfe', u''],u'appypdf',u'Letter.odt',False,u'Default.eml.html',False,u'',u'aus.body.html',True))
+loader.save(create_notes_notetype(12,[u'Presence certificate', u'Attestation de pr\xe9sence', u'Anwesenheitsbescheinigung', u''],u'appypdf',u'Letter.odt',False,u'Default.eml.html',False,u'',u'anw.body.html',True))
+loader.save(create_notes_notetype(13,[u'Letter', u'Lettre', u'Brief oder Einschreiben', u''],u'appyrtf',u'Letter.odt',False,u'Default.eml.html',False,u'',u'',True))
+loader.save(create_notes_notetype(14,[u'Default', u'', u'', u''],u'appyodt',u'Default.odt',False,u'',False,u'',u'',False))
+loader.save(create_notes_notetype(15,[u'phone report', u'', u'', u''],u'appyodt',u'',False,u'',False,u'',u'',False))
+loader.save(create_notes_notetype(16,[u'todo', u'', u'', u''],u'',u'',False,u'',False,u'',u'',False))
+
+loader.flush_deferred_objects()
