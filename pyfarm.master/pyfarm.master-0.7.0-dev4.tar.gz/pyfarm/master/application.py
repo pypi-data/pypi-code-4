@@ -1,0 +1,197 @@
+# No shebang line, this module is meant to be imported
+#
+# Copyright 2013 Oliver Palmer
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+Application
+===========
+
+Contains the base application classes and functions necessary to
+configure it.
+"""
+
+import os
+from datetime import timedelta
+from uuid import uuid4
+from warnings import warn
+from werkzeug.datastructures import ImmutableDict
+from flask import Flask, Blueprint
+from flask.ext.cache import Cache
+from flask.ext.admin import Admin
+from flask.ext.login import LoginManager
+from flask.ext.sqlalchemy import SQLAlchemy
+from itsdangerous import URLSafeTimedSerializer
+from pyfarm.core.config import cfg
+from pyfarm.core.warning import EnvironmentWarning, ConfigurationWarning
+from pyfarm.master.admin.baseview import AdminIndex
+
+# default configuration values
+# TODO: these should either be in the, read from a config, or come from the
+# environment
+cfg.update({
+    "db.table_prefix": "pyfarm_",
+    "agent.min_port": 1025,
+    "agent.max_port": 65535,
+    "agent.min_cpus": 1,
+    "agent.max_cpus": 2147483647,
+    "agent.special_cpus": [0],
+    "agent.min_ram": 32,
+    "agent.max_ram": 2147483647,
+    "agent.special_ram": [0],
+    "job.priority": 500,
+    "job.max_username_length": 254,
+    "job.min_priority": 0,
+    "job.max_priority": 1000,
+    "job.batch": 1,
+    "job.requeue": 1,
+    "job.cpus": 4,
+    "job.ram": 32})
+
+
+def get_secret_key(warning=True):
+    """
+    Returns the secret key to use
+
+    :param boolean warning:
+        if True, produce a warning if :envvar:`PYFARM_SECRET_KEY` is not
+        present in the environment
+    """
+    if "PYFARM_SECRET_KEY" in os.environ:
+        return os.environ["PYFARM_SECRET_KEY"]
+    elif warning:
+        warn("$PYFARM_SECRET_KEY not present in environment",
+             EnvironmentWarning)
+
+    return "4n)Z\xc2\xde\xdd\x17\xdd\xf7\xa6)>{\xfc\xff"
+
+
+def get_database_uri(warning=True):
+    """
+    Returns the database uri
+
+    :param boolean warning:
+        if True, produce a warning when sqlite is being used or when
+        :envvar:`PYFARM_DATABASE_URI` is not present in the environment
+    """
+    if "PYFARM_DATABASE_URI" in os.environ:
+        uri = os.environ["PYFARM_DATABASE_URI"]
+    else:
+        uri = "sqlite:///pyfarm.sqlite"
+
+        if warning:
+            warn("$PYFARM_DATABASE_URI not present in environment",
+                 EnvironmentWarning)
+
+    if warning and "sqlite:" in uri:
+        warn("sqlite is for development purposes only", ConfigurationWarning)
+
+    return uri
+
+
+def get_session_key(warning=True):
+    """
+    Returns the CSRF session key for use by the application
+
+    :param boolean warning:
+        if True, produce a warning if :envvar:`PYFARM_CSRF_SESSION_KEY` is not
+        present in the environment
+    """
+    if "PYFARM_CSRF_SESSION_KEY" in os.environ:
+        return os.environ["PYFARM_CSRF_SESSION_KEY"]
+    elif warning:
+        warn("$PYFARM_CSRF_SESSION_KEY is not present in the environment",
+             EnvironmentWarning)
+        return get_secret_key(warning=warning)
+
+
+def get_json_pretty():
+    """
+    If :envvar:`PYFARM_JSON_PRETTY` is set to `true` all json output
+    will be dumped in a human readable form.  The same will also be true
+    if :envvar:`PYFARM_CONFIG` is set to `debug`.
+    """
+    if "PYFARM_JSON_PRETTY" in os.environ:
+        return os.environ["PYFARM_JSON_PRETTY"] == "true"
+    elif "PYFARM_CONFIG" in os.environ:
+        return os.environ["PYFARM_CONFIG"] == "debug"
+    else:
+        return True
+
+
+# build the configuration
+if os.environ.get("PYFARM_CONFIG", "debug") == "debug":
+    CONFIG = ImmutableDict({
+        "DEBUG": True,
+        #"LOGIN_DISABLED": True,
+        "PYFARM_JSON_PRETTY": get_json_pretty(),
+        "SQLALCHEMY_ECHO": False,
+        "SECRET_KEY": get_secret_key(warning=False),
+        "SQLALCHEMY_DATABASE_URI": get_database_uri(warning=False),
+        "CSRF_SESSION_KEY": get_session_key(warning=False),
+        "CACHE_TYPE": "simple",
+        "REMEMBER_COOKIE_DURATION": timedelta(hours=1)})
+
+else:
+    CONFIG = ImmutableDict({
+        "DEBUG": False,
+        "PYFARM_JSON_PRETTY": get_json_pretty(),
+        "SQLALCHEMY_ECHO": False,
+        "SECRET_KEY": get_secret_key(warning=True),
+        "SQLALCHEMY_DATABASE_URI": get_database_uri(warning=True),
+        "CSRF_SESSION_KEY": get_session_key(warning=True),
+        "CACHE_TYPE": "simple",  # TODO: should probably be server based
+        "REMEMBER_COOKIE_DURATION": timedelta(hours=12)})
+
+app = Flask("pyfarm.master")
+
+# configure the application
+app.config.update(CONFIG)
+
+# api blueprint
+api_version = 1
+api = Blueprint("api", "pyfarm.master.api", url_prefix="/v%s" % api_version)
+app.register_blueprint(api)
+
+# admin, database, and cache
+admin = Admin(app, index_view=AdminIndex())
+db = SQLAlchemy(app)
+cache = Cache(app)
+
+# login system
+login_manager = LoginManager(app)
+login_manager.login_view = "/login/"
+login_serializer = URLSafeTimedSerializer(app.secret_key)
+
+
+class SessionMixin(object):
+    """
+    Mixin which adds a :attr:`._session` attribute.  This class is provided
+    mainly to limit issues with circular imports.
+    """
+    _session = property(fget=lambda self: db.session)
+
+
+# sqlite specific configuration for development
+if db.engine.name == "sqlite":
+    from sqlalchemy.engine import Engine
+    from sqlalchemy import event
+
+    @event.listens_for(Engine, "connect")
+    def set_sqlite_pragma(dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.execute("PRAGMA synchronous=OFF")
+        cursor.execute("PRAGMA journal_mode=MEMORY")
+        cursor.close()
