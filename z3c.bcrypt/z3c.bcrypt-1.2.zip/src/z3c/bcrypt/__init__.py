@@ -1,0 +1,2 @@
+from z3c.bcrypt.passwordmanager import BcryptPasswordManager
+from z3c.bcrypt.passwordmanager import PBKDF2PasswordManager
