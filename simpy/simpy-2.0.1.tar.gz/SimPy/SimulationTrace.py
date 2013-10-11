@@ -1,0 +1,1087 @@
+#!/usr / bin / env python
+# $Revision: 163 $ $Date: 2008-12-15 12:47:44 +0100 (Mo, 15 Dez 2008) $ kgm
+"""SimulationTrace 2.0 Traces execution of SimPy models.
+Implements SimPy Processes, Resources, Buffers, and the backbone simulation 
+scheduling by coroutine calls. Provides data collection through classes 
+Monitor and Tally.
+Based on generators (Python 2.3 and later; not 3.0)
+
+LICENSE:
+Copyright (C) 2002, 2005, 2006, 2007, 2008  Klaus G. Muller, Tony Vignaux
+mailto: kgmuller@xs4all.nl and Tony.Vignaux@vuw.ac.nz
+
+    This library is free software; you can redistribute it and / or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 - 1307  USA
+END OF LICENSE
+
+
+**Change history:**
+    9 May 03: SimulationTrace module based on SimPy 1.3
+    
+    12 / 5/2003: Changed eventlist handling from dictionary to bisect
+    
+    9 / 6/2003: - Changed eventlist handling from pure dictionary to bisect-
+                sorted 'timestamps' list of keys, resulting in greatly 
+                improved performance for models with large
+                numbers of event notices with differing event times.
+                =========================================================
+                This great change was suggested by Prof. Simon Frost. 
+                Thank you, Simon! This version 1.3 is dedicated to you!
+                =========================================================
+              - Added import of Lister which supports well - structured 
+                printing of all attributes of Process and Resource instances.
+
+    November 03: Brought up to Simulation 1.4alpha
+    
+    13 Dec 2003: Merged in Monitor and Histogram
+
+    27 Feb 2004: Repaired bug in activeQ monitor of class Resource. Now actMon
+                 correctly records departures from activeQ.
+                 
+    19 May 2004: Added erroneously omitted Histogram class.
+    
+    5 Sep 2004: Added SimEvents synchronization constructs
+    
+    17 Sep 2004: Added waituntil synchronization construct
+                     
+    01 Dec 2004: SimPy version 1.5
+                 Changes in this module: Repaired SimEvents bug re proc.eventsFired
+
+    12 Jan 2005: SimPy version 1.5.1
+                 Changes in this module: Monitor objects now have a default name
+                                         'a_Monitor'
+                                         
+    29 Mar 2005: Start SimPy 1.6: compound 'yield request' statements
+    
+    05 Jun 2005: Fixed bug in _request method -- waitMon did not work properly in
+                 preemption case
+                 
+    09 Jun 2005: Added test in 'activate' to see whether 'initialize()' was called first.
+    
+    23 Aug 2005: - Added Tally data collection class
+                 - Adjusted Resource to work with Tally
+                 - Redid function allEventNotices() (returns prettyprinted string with event
+                   times and names of process instances
+                 - Added function allEventTimes (returns event times of all scheduled events)
+                 
+    16 Mar 2006: - Added Store and Level classes
+                 - Added 'yield get' and 'yield put'
+                 
+    10 May 2006: - Repaired bug in Store._get method
+                 - Repaired Level to allow initialBuffered have float value
+                 - Added type test for Level get parameter 'nrToGet'
+                 
+    06 Jun 2006: - To improve pretty - printed output of 'Level' objects, changed attribute
+                   _nrBuffered to nrBuffered (synonym for amount property)
+                 - To improve pretty - printed output of 'Store' objects, added attribute
+                   buffered (which refers to _theBuffer)
+                   
+    25 Aug 2006: - Start of version 1.8
+                 - made 'version' public
+                 - corrected condQ initialization bug
+                 
+    30 Sep 2006: - Introduced checks to ensure capacity of a Buffer > 0
+                 - Removed from __future__ import (so Python 2.3 or later needed)
+                
+    15 Oct 2006: - Added code to register all Monitors and all Tallies in variables
+                   'allMonitors' and 'allTallies'
+                 - Added function 'startCollection' to activate Monitors and Tallies at a
+                   specified time (e.g. after warmup period)
+                 - Moved all test / demo programs to after 'if __name__ == '__main__':'.
+                
+    17 Oct 2006: - Added compound 'put' and 'get' statements for Level and Store.
+    
+    18 Oct 2006: - Repaired bug: self.eventsFired now gets set after an event fires
+                   in a compound yield get / put with a waitevent clause (reneging case).
+                   
+    21 Oct 2006: - Introduced Store 'yield get' with a filter function.
+                
+    22 Oct 2006: - Repaired bug in prettyprinting of Store objects (the buffer 
+                   content==._theBuffer was not shown) by changing ._theBuffer 
+                   to .theBuffer.
+                
+    04 Dec 2006: - Added printHistogram method to Tally and Monitor (generates
+                   table - form histogram)
+                    
+    07 Dec 2006: - Changed the __str__ method of Histogram to print a table 
+                   (like printHistogram).
+    
+    18 Dec 2006: - Added trace printing of Buffers' 'unitName' for yield get and put.
+    
+    09 Jun 2007: - Enabled tracing of 'activate' and 'passivate'.
+                 - Cleaned out all uses of 'object' to prevent name clash.
+    18 Nov 2007: - Start of 1.9 development
+                 - Added 'start' method (alternative to activate) to Process
+                 
+    22 Nov 2007: - Major change to event list handling to speed up larger models:
+                    * Drop dictionary
+                    * Replace bisect by heapq
+                    * Mark cancelled event notices in unpost and skip them in
+                      nextev (great idea of Tony Vignaux))
+                      
+    4 Dec 2007: - Added twVariance calculation for both Monitor and Tally (gav)
+    
+    5 Dec 2007: - Changed name back to timeVariance (gav)
+    
+    1 Mar 2008: - Start of 1.9.1 bugfix release
+                - Delete circular reference in Process instances when event 
+                  notice has been processed (caused much circular garbage)
+                - Added capability for multiple preempts of a process
+                
+    14 Aug 2008: - Removed most classes / methods and imported them from
+                   Simulation.py instead (Stefan Scherfke)
+                 - Moved remaining functions to SimulationTrace and added some
+                   methods for backward compatibility
+    
+"""
+
+from SimPy.Lister import *
+from SimPy.Simulation import *
+
+
+__TESTING = False
+version = __version__ = '2.0 $Revision: 163 $ $Date: 2008-12-15 12:47:44 +0100 (Mo, 15 Dez 2008) $'
+if __TESTING: 
+    print 'SimPy.SimulationTrace %s' %__version__,
+    if __debug__:
+        print '__debug__ on'
+    else:
+        print
+        
+class SimulationTrace(Simulation):
+
+    def __init__(self):
+        Simulation.__init__(self)
+        self.trace = Trace(sim=self)
+        
+    def initialize(self):
+        Simulation.initialize(self)
+        self.trace = Trace(sim=self)
+    
+    def activate(self, obj, process, at = 'undefined', delay = 'undefined', prior = False):
+        """Application function to activate passive process."""
+        if self._e is None:
+            raise FatalSimerror\
+                    ('Fatal error: simulation is not initialized (call initialize() first)')
+        if not (type(process) == types.GeneratorType):
+            raise FatalSimerror('Activating function which'+
+                ' is not a generator (contains no \'yield\')')
+        if not obj._terminated and not obj._nextTime:
+            #store generator reference in object; needed for reactivation
+            obj._nextpoint = process
+            if at == 'undefined':
+                at = self._t
+            if delay == 'undefined':
+                zeit = max(self._t, at)
+            else:
+                zeit = max(self._t, self._t + delay)
+            self.trace.recordActivate(who = obj, when = zeit, prior = prior)
+            self._e._post(obj, at = zeit, prior = prior)
+    
+    def reactivate(self, obj, at = 'undefined', delay = 'undefined', prior = False):
+        """Application function to reactivate a process which is active,
+        suspended or passive."""
+        # Object may be active, suspended or passive
+        if not obj._terminated:
+            a = Process('SimPysystem',sim=self)
+            a.cancel(obj)
+            # object now passive
+            if at == 'undefined':
+                at = self._t
+            if delay == 'undefined':
+                zeit = max(self._t, at)
+            else:
+                zeit = max(self._t, self._t + delay)
+            self.trace.recordReactivate(who = obj, when = zeit, prior = prior)
+            self._e._post(obj, at = zeit, prior = prior)
+            
+    def simulate(self, until = 0):
+        """Schedules Processes / semi - coroutines until time 'until'"""
+        
+        """Gets called once. Afterwards, co - routines (generators) return by 
+        'yield' with a cargo:
+        yield hold, self, <delay>: schedules the 'self' process for activation 
+                                after < delay > time units.If <,delay > missing,
+                                same as 'yield hold, self, 0'
+                                
+        yield passivate, self    :  makes the 'self' process wait to be re - activated
+    
+        yield request, self,<Resource > [,<priority>]: request 1 unit from < Resource>
+            with < priority > pos integer (default = 0)
+    
+        yield release, self,<Resource> : release 1 unit to < Resource>
+    
+        yield waitevent, self,<SimEvent>|[<Evt1>,<Evt2>,<Evt3), . . . ]:
+            wait for one or more of several events
+            
+    
+        yield queueevent, self,<SimEvent>|[<Evt1>,<Evt2>,<Evt3), . . . ]:
+            queue for one or more of several events
+    
+        yield waituntil, self, cond : wait for arbitrary condition
+    
+        yield get, self,<buffer > [,<WhatToGet > [,<priority>]]
+            get < WhatToGet > items from buffer (default = 1); 
+            <WhatToGet > can be a pos integer or a filter function
+            (Store only)
+            
+        yield put, self,<buffer > [,<WhatToPut > [,priority]]
+            put < WhatToPut > items into buffer (default = 1);
+            <WhatToPut > can be a pos integer (Level) or a list of objects
+            (Store)
+    
+        EXTENSIONS:
+        Request with timeout reneging:
+        yield (request, self,<Resource>),(hold, self,<patience>) :
+            requests 1 unit from < Resource>. If unit not acquired in time period
+            <patience>, self leaves waitQ (reneges).
+    
+        Request with event - based reneging:
+        yield (request, self,<Resource>),(waitevent, self,<eventlist>):
+            requests 1 unit from < Resource>. If one of the events in < eventlist > occurs before unit
+            acquired, self leaves waitQ (reneges).
+            
+        Get with timeout reneging (for Store and Level):
+        yield (get, self,<buffer>,nrToGet etc.),(hold, self,<patience>)
+            requests < nrToGet > items / units from < buffer>. If not acquired < nrToGet > in time period
+            <patience>, self leaves < buffer>.getQ (reneges).
+            
+        Get with event - based reneging (for Store and Level):
+        yield (get, self,<buffer>,nrToGet etc.),(waitevent, self,<eventlist>)
+            requests < nrToGet > items / units from < buffer>. If not acquired < nrToGet > before one of
+            the events in < eventlist > occurs, self leaves < buffer>.getQ (reneges).
+    
+            
+    
+        Event notices get posted in event - list by scheduler after 'yield' or by 
+        'activate' / 'reactivate' functions.
+        
+        """
+        self._stop = False
+    
+        if self._e is None:
+            raise FatalSimerror('Simulation not initialized')
+        if self._e._isEmpty():
+            message = 'SimPy: No activities scheduled'
+            return message
+        
+        self._endtime = until
+        message = 'SimPy: Normal exit'
+        dispatch={hold:holdfunc, request:requestfunc, release:releasefunc,
+        passivate:passivatefunc, waitevent:waitevfunc, queueevent:queueevfunc,
+        waituntil:waituntilfunc, get:getfunc, put:putfunc}
+        commandcodes = dispatch.keys()
+        commandwords={hold:'hold', request:'request', release:'release', passivate:'passivate',
+        waitevent:'waitevent', queueevent:'queueevent', waituntil:'waituntil',
+        get:'get', put:'put'}
+        nextev = self._e._nextev ## just a timesaver
+        while not self._stop and self._t <= self._endtime:
+            try:
+                a = nextev()
+                if not a[0] is None:
+                    ## 'a' is tuple '(<yield command>, <action>)'  
+                    if type(a[0][0]) == tuple:
+                        ##allowing for yield (request, self, res),(waituntil, self, cond)
+                        command = a[0][0][0]
+                    else: 
+                        command = a[0][0]
+                    if __debug__:
+                        if not command in commandcodes:
+                            raise FatalSimerror('Illegal command: yield %s'%command)
+                    dispatch[command](a)
+                    self.trace.recordEvent(command, a)
+                else:
+                    if not a == (None,): #not at endtime!
+                        self.trace.tterminated(a[1])
+            except FatalSimerror, error:
+                print 'SimPy: ' + error.value
+                sys.exit(1)
+            except Simerror, error:
+                message = 'SimPy: ' + error.value
+                self._stop = True
+            if self._wustep:
+                self._test()
+        self._stopWUStepping()
+        self._e = None
+        if not(self.trace.outfile is sys.stdout):
+            self.trace.outfile.close()
+        return message
+
+def requestfunc(a):
+    """Handles 'yield request, self, res' and 'yield (request, self, res),(<code>,self, par)'.
+    <code > can be 'hold' or 'waitevent'.
+    """
+    if type(a[0][0]) == tuple:
+        ## Compound yield request statement
+        ## first tuple in ((request, self, res),(xx, self, yy))
+        b = a[0][0]
+        ## b[2] == res (the resource requested)
+        ##process the first part of the compound yield statement
+        ##a[1] is the Process instance
+        b[2]._request(arg = (b, a[1]))
+        ##deal with add - on condition to command
+        ##Trigger processes for reneging
+        class _Holder(Process):
+            """Provides timeout process"""
+            def __init__(self,name,sim=None):
+                Process.__init__(self,name=name,sim=sim)
+            def trigger(self, delay):
+                yield hold, self, delay
+                if not proc in b[2].activeQ:
+                    proc.sim.reactivate(proc)
+
+        class _EventWait(Process):
+            """Provides event waiting process"""
+            def __init__(self,name,sim=None):
+                Process.__init__(self,name=name,sim=sim)
+            def trigger(self, event):
+                yield waitevent, self, event
+                if not proc in b[2].activeQ:
+                    proc.eventsFired = self.eventsFired
+                    proc.sim.reactivate(proc)
+
+        #activate it
+        proc = a[0][0][1] # the process to be woken up
+        actCode = a[0][1][0]
+        trace.tstop()
+        if actCode == hold:
+            proc._holder = _Holder(name = 'RENEGE - hold for %s'%proc.name,
+                                   sim=proc.sim)
+            ##                                          the timeout delay
+            proc.sim.activate(proc._holder, proc._holder.trigger(a[0][1][2]))
+        elif actCode == waituntil:
+            raise FatalSimerror('Illegal code for reneging: waituntil')
+        elif actCode == waitevent:
+            proc._holder = _EventWait(name = 'RENEGE - waitevent for %s'\
+                                      %proc.name,sim=proc.sim)
+            ##                                          the event
+            proc.sim.activate(proc._holder, proc._holder.trigger(a[0][1][2]))
+        elif actCode == queueevent:
+            raise FatalSimerror('Illegal code for reneging: queueevent')
+        else:
+            raise FatalSimerror('Illegal code for reneging %s'%actCode)
+        trace.tstart()
+    else:
+        ## Simple yield request command
+        a[0][2]._request(a)
+    
+class Trace(Lister):
+    commands={hold:'hold', passivate:'passivate', request:'request', release:'release',
+              waitevent:'waitevent', queueevent:'queueevent', waituntil:'waituntil',
+            get:'get', put:'put'}
+
+    def __init__(self, start = 0, end = 10000000000L, toTrace=\
+                 ['hold', 'activate', 'cancel', 'reactivate', 'passivate', 'request',
+                  'release', 'interrupt', 'terminated', 'waitevent', 'queueevent',
+                  'signal', 'waituntil', 'put', 'get' 
+                 ],outfile = sys.stdout,sim=None):
+                        
+        Trace.commandsproc={hold:Trace.thold, passivate:Trace.tpassivate,
+                            request:Trace.trequest, release:Trace.trelease,
+                            waitevent:Trace.twaitevent,
+                            queueevent:Trace.tqueueevent,
+                            waituntil:Trace.twaituntil,
+                            get:Trace.tget, put:Trace.tput}
+        if sim is None: sim=Globals.sim
+        self.sim=sim
+        self.start = start
+        self.end = end
+        self.toTrace = toTrace
+        self.tracego = True
+        self.outfile = outfile
+        self._comment = None
+
+    def treset(self):
+        Trace.commandsproc={hold:Trace.thold, passivatre:Trace.tpassivate,
+                            request:Trace.trequest, release:Trace.trelease,
+                            waitevent:Trace.twaitevent,
+                            queueevent:Trace.tqueueevent,
+                            waituntil:Trace.twaituntil,
+                            get:Trace.tget, put:Trace.tput}
+        self.start = 0
+        self.end = 10000000000L
+        self.toTrace = ['hold', 'activate', 'cancel', 'reactivate', 'passivate', 'request',
+                        'release', 'interrupt', 'terminated', 'waitevent', 'queueevent',
+                        'signal', 'waituntil', 'put', 'get']
+        self.tracego = True
+        self.outfile = sys.stdout
+        self._comment = None
+
+    def tchange(self,**kmvar):
+        for v in kmvar.keys():
+            if v == 'start':
+                self.start = kmvar[v]
+            elif v == 'end':
+                self.end = kmvar[v]
+            elif v == 'toTrace':
+                self.toTrace = kmvar[v]
+            elif v == 'outfile':
+                self.outfile = kmvar[v]                
+                
+    def tstart(self):
+        self.tracego = True
+
+    def tstop(self):
+        self.tracego = False
+
+    def ifTrace(self, cond):
+        if self.tracego and (self.start <= self.sim.now() <= self.end)\
+           and cond:
+            return True
+
+    def thold(self, par):
+        try:
+            return 'delay: %s'%par[0][2]
+        except:
+            return 0
+    thold = classmethod(thold)
+    
+    def trequest(self, par):
+        res = par[0][2]
+        if len(par[0]) == 4:
+            priority = ' priority: ' + str(par[0][3])
+        else:
+            priority = ' priority: default'
+        wQ = [x.name for x in res.waitQ]
+        aQ = [x.name for x in res.activeQ]
+        return '<%s> %s \n. . .waitQ: %s \n. . .activeQ: %s' % (res.name, priority, wQ, aQ)
+    trequest = classmethod(trequest)
+    
+    def trelease(self, par):
+        res = par[0][2]
+        wQ = [x.name for x in res.waitQ]
+        aQ = [x.name for x in res.activeQ]
+        return '<%s> \n. . .waitQ: %s \n. . .activeQ: %s' % (res.name, wQ, aQ)
+    trelease = classmethod(trelease)
+    
+    def tpassivate(self, par):
+        return ""
+    tpassivate = classmethod(tpassivate)
+
+    def tactivate(self, par):
+        pass
+    tactivate = classmethod(tactivate)
+    
+    def twaitevent(self, par):
+        evt = par[0][2]
+        if type(evt) == list or type(evt) == tuple:
+            enames = [x.name for x in evt]
+            return 'waits for events <%s > '%enames
+        else:
+            return 'waits for event <%s > '%evt.name
+    twaitevent = classmethod(twaitevent)
+    
+    def tqueueevent(self, par):
+        evt = par[0][2]
+        if type(evt) == list or type(evt) == tuple:
+            enames = [x.name for x in evt]
+            return 'queues for events <%s > '%enames          
+        else:
+            return 'queues for event <%s > '%evt.name
+    tqueueevent = classmethod(tqueueevent)
+    
+    def tsignal(self, evt):
+        wQ = [x.name for x in evt.waits]
+        qQ = [x.name for x in evt.queues]
+        return '<%s> \n. . .  occurred: %s\n. . .  waiting: %s\n. . .  queueing: %s'\
+                %(evt.name, evt.occurred, wQ, qQ)
+        pass
+    tsignal = classmethod(tsignal)
+    
+    def twaituntil(self, par):
+        condition = par[0][2]
+        return 'for condition <%s > '%condition.func_name
+    twaituntil = classmethod(twaituntil)
+    
+    def tget(self, par):
+        buff = par[0][2]
+        if len(par[0]) == 5:
+            priority = ' priority: ' + str(par[0][4])
+        else:
+            priority = ' priority: default'
+        if len(par[0]) == 3:
+            nrToGet = 1
+        else:
+            nrToGet = par[0][3]
+        toGet = 'to get: %s %s from' % (nrToGet, buff.unitName)
+        getQ = [x.name for x in buff.getQ]
+        putQ = [x.name for x in buff.putQ]
+        try:
+            inBuffer = buff.amount
+        except:
+            inBuffer = buff.nrBuffered
+        return '%s <%s> %s \n. . .getQ: %s \n. . .putQ: %s \n. . .in buffer: %s'\
+            %(toGet, buff.name, priority, getQ, putQ, inBuffer)
+    tget = classmethod(tget)
+    
+    def tput(self, par):
+        buff = par[0][2]
+        if len(par[0]) == 5:
+            priority = ' priority: ' + str(par[0][4])
+        else:
+            priority = ' priority: default'
+        if len(par[0]) == 3:
+            nrToPut = 1
+        else:
+            if type(par[0][3]) == type([]):
+                nrToPut = len(par[0][3])
+            else:
+                nrToPut = par[0][3]
+        getQ = [x.name for x in buff.getQ]
+        putQ = [x.name for x in buff.putQ]
+        toPut = 'to put: %s %s into' % (nrToPut, buff.unitName)
+        try:
+            inBuffer = buff.amount
+        except:
+            inBuffer = buff.nrBuffered
+        return '%s <%s> %s \n. . .getQ: %s \n. . .putQ: %s \n. . .in buffer: %s'\
+            %(toPut, buff.name, priority, getQ, putQ, inBuffer)
+    tput = classmethod(tput)
+    
+    def recordEvent(self, command, whole):
+        if self.ifTrace(Trace.commands[command] in self.toTrace):
+            if not type(whole[0][0]) == tuple:
+                try:
+                    print >> self.outfile, whole[0][1].sim.now(),\
+                             Trace.commands[command],\
+                             ' < ' + whole[0][1].name + ' > ',\
+                             Trace.commandsproc[command](whole)
+                except TypeError:
+                    print 'l.1649: whole[0][1].name', whole[0][1].name,\
+                        Trace.commands[command],Trace.commandsproc[command]
+                Trace.commands[command],Trace.commandsproc[command]
+                if self._comment:
+                    print >> self.outfile, '----', self._comment
+            else:
+                ##print >> self.outfile, '[WHOLE]', whole, '\n[END WHOLE]'
+                print >> self.outfile, whole[0][0][1].sim.now(),\
+                         Trace.commands[command],\
+                         ' < ' + whole[0][0][1].name + ' > '+\
+                         Trace.commandsproc[command](whole[0])
+                print >> self.outfile, '|| RENEGE COMMAND:'
+                command1 = whole[0][1][0]
+                print >> self.outfile, '||\t', Trace.commands[command1],\
+                    ' < ' + whole[0][1][1].name + ' > ',\
+                      Trace.commandsproc[command1]((whole[0][1],))
+                if self._comment:
+                    print >> self.outfile, '----', self._comment
+                
+        self._comment = None
+
+    def recordInterrupt(self, who, victim):
+        if self.ifTrace('interrupt' in self.toTrace):
+            print >> self.outfile, '%s interrupt by: <%s > of: <%s >'\
+                                   %(who.sim.now(),who.name, victim.name)
+            if self._comment:
+                print >> self.outfile, '----', self._comment
+        self._comment = None
+                
+    def recordCancel(self, who, victim):
+        if self.ifTrace('cancel' in self.toTrace):
+            print >> self.outfile, '%s cancel by: <%s > of: <%s > '\
+            %(who.sim.now(),who.name, victim.name)
+            if self._comment:
+                print >> self.outfile, '----', self._comment
+        self._comment = None
+        
+    def recordActivate(self, who, when, prior):
+        if self.ifTrace('activate' in self.toTrace):
+            print >> self.outfile, '%s activate <%s > at time: %s prior: %s'\
+                     %(who.sim.now(),who.name,when, prior)
+            if self._comment:
+                print >> self.outfile, '----', self._comment
+        self._comment = None                                                                       
+
+    def recordReactivate(self, who, when, prior):
+        if self.ifTrace('reactivate' in self.toTrace):
+            print >> self.outfile, '%s reactivate <%s > time: %s prior: %s'\
+                     %(who.sim.now(),who.name,when, prior)
+            if self._comment:
+                print >> self.outfile, '----', self._comment
+        self._comment = None
+        
+    def recordSignal(self, evt):
+        if self.ifTrace('signal' in self.toTrace):
+            print >> self.outfile, '%s event <%s > is signalled' \
+                                   %(evt.sim.now(),evt.name)
+            if self._comment:
+                print >> self.outfile, '----', self._comment
+        self._comment = None
+
+    def tterminated(self, who):
+        if self.ifTrace('terminated' in self.toTrace):
+            print >> self.outfile, '%s <%s > terminated'\
+                     %(who.sim.now(),who.name)
+            if self._comment:
+                print >> self.outfile, '----', self._comment
+        self._comment = None        
+
+    def ttext(self, par):
+        self._comment = par
+  
+# For backward compatibility
+Globals.sim = SimulationTrace()
+trace = Globals.sim.trace
+# End backward compatibility
+
+if __name__ == '__main__':
+    print 'SimPy.SimulationTrace %s' %__version__
+    ############# Test / demo functions #############
+    def test_demo():
+        class Aa(Process):
+            sequIn = []
+            sequOut = []
+            def __init__(self, holdtime, name,sim=None):
+                Process.__init__(self, name,sim=sim)
+                self.holdtime = holdtime
+    
+            def life(self, priority):
+                for i in range(1):
+                    Aa.sequIn.append(self.name)
+                    print self.sim.now(),rrr.name, 'waitQ:', len(rrr.waitQ),'activeQ:',\
+                          len(rrr.activeQ)
+                    print 'waitQ: ',[(k.name, k._priority[rrr]) for k in rrr.waitQ]
+                    print 'activeQ: ',[(k.name, k._priority[rrr]) \
+                               for k in rrr.activeQ]
+                    assert rrr.n + len(rrr.activeQ) == rrr.capacity, \
+                   'Inconsistent resource unit numbers'
+                    print self.sim.now(),self.name, 'requests 1 ', rrr.unitName
+                    yield request, self, rrr, priority
+                    print self.sim.now(),self.name, 'has 1 ', rrr.unitName
+                    print self.sim.now(),rrr.name, 'waitQ:', len(rrr.waitQ),'activeQ:',\
+                          len(rrr.activeQ)
+                    print self.sim.now(),rrr.name, 'waitQ:', len(rrr.waitQ),'activeQ:',\
+                          len(rrr.activeQ)
+                    assert rrr.n + len(rrr.activeQ) == rrr.capacity, \
+                   'Inconsistent resource unit numbers'
+                    yield hold, self, self.holdtime
+                    print self.sim.now(),self.name, 'gives up 1', rrr.unitName
+                    yield release, self, rrr
+                    Aa.sequOut.append(self.name)
+                    print self.sim.now(),self.name, 'has released 1 ', rrr.unitName
+                    print 'waitQ: ',[(k.name, k._priority[rrr]) for k in rrr.waitQ]
+                    print self.sim.now(),rrr.name, 'waitQ:', len(rrr.waitQ),'activeQ:',\
+                          len(rrr.activeQ)
+                    assert rrr.n + len(rrr.activeQ) == rrr.capacity, \
+                           'Inconsistent resource unit numbers'
+    
+        class Observer(Process):
+            def __init__(self,**vars):
+                Process.__init__(self,**vars)
+    
+            def observe(self, step, processes, res):
+                while self.sim.now() < 11:
+                    for i in processes:
+                        print '++ %s process: %s: active:%s, passive:%s, terminated: %s, interrupted:%s, queuing:%s'\
+                              %(self.sim.now(),i.name, i.active(),i.passive(),\
+                                i.terminated(),i.interrupted(),i.queuing(res))
+                    print
+                    yield hold, self, step
+                
+        print'\n+++test_demo output'
+        print '****First case == priority queue, resource service not preemptable'
+        s=SimulationTrace()
+        s.initialize()
+        rrr = Resource(5, name = 'Parking', unitName = 'space(s)', qType = PriorityQ,
+                     preemptable = 0,sim=s)
+        procs = []
+        for i in range(10):
+            z = Aa(holdtime = i, name = 'Car ' + str(i),sim=s)
+            procs.append(z)
+            s.activate(z, z.life(priority = i))
+        o = Observer(sim=s)
+        s.activate(o, o.observe(1, procs, rrr))
+        a = s.simulate(until = 10000)
+        print a
+        print 'Input sequence: ', Aa.sequIn
+        print 'Output sequence: ', Aa.sequOut
+    
+        print '\n****Second case == priority queue, resource service preemptable'
+        s=SimulationTrace()
+        s.initialize()
+        rrr = Resource(5, name = 'Parking', unitName = 'space(s)', qType = PriorityQ,
+                     preemptable = 1,sim=s)
+        procs = []
+        for i in range(10):
+            z = Aa(holdtime = i, name = 'Car ' + str(i),sim=s)
+            procs.append(z)
+            s.activate(z, z.life(priority = i))
+        o = Observer(sim=s)
+        s.activate(o, o.observe(1, procs, rrr))
+        Aa.sequIn = []
+        Aa.sequOut = []
+        a = s.simulate(until = 10000)
+        print a
+        print 'Input sequence: ', Aa.sequIn
+        print 'Output sequence: ', Aa.sequOut   
+    
+    def test_interrupt():
+        class Bus(Process):
+            def __init__(self, **vars):
+                Process.__init__(self, **vars)
+    
+            def operate(self, repairduration = 0):
+                print self.sim.now(),'>> %s starts' % (self.name)
+                tripleft = 1000
+                while tripleft > 0:
+                    yield hold, self, tripleft
+                    if self.interrupted():
+                        print 'interrupted by %s' %self.interruptCause.name
+                        print '%s: %s breaks down ' %(now(),self.name)
+                        tripleft = self.interruptLeft
+                        self.interruptReset()
+                        print 'tripleft ', tripleft
+                        s.reactivate(br, delay = repairduration) # breakdowns only during operation
+                        yield hold, self, repairduration
+                        print self.sim.now(),' repaired'
+                    else:
+                        break # no breakdown, ergo bus arrived
+                print self.sim.now(),'<< %s done' % (self.name)
+    
+        class Breakdown(Process):
+            def __init__(self, myBus,sim=None):
+                Process.__init__(self, name = 'Breakdown ' + myBus.name,sim=sim)
+                self.bus = myBus
+    
+            def breakBus(self, interval):
+    
+                while True:
+                    yield hold, self, interval
+                    if self.bus.terminated(): break
+                    self.interrupt(self.bus)
+                    
+        print'\n\n+++test_interrupt'
+        s=SimulationTrace()
+        s.initialize()
+        b = Bus(name='Bus 1',sim=s)
+        s.activate(b, b.operate(repairduration = 20))
+        br = Breakdown(b,sim=s)
+        s.activate(br, br.breakBus(200))
+        print s.simulate(until = 4000)
+    
+    def testSimEvents():
+        class Waiter(Process):
+            def __init__(self,**vars):
+                Process.__init__(self,**vars)
+            def waiting(self, theSignal):
+                while True:
+                    yield waitevent, self, theSignal
+                    print '%s: process \'%s\' continued after waiting for %s' %\
+                          (self.sim.now(),self.name, theSignal.name)
+                    yield queueevent, self, theSignal
+                    print '%s: process \'%s\' continued after queueing for %s' % (now(),self.name, theSignal.name)
+                    
+        class ORWaiter(Process):
+            def __init__(self,**vars):
+                Process.__init__(self,**vars)
+            def waiting(self, signals):
+                while True:
+                    yield waitevent, self, signals
+                    print self.sim.now(),'one of %s signals occurred' %\
+                          [x.name for x in signals]
+                    print '\t%s (fired / param)'%\
+                          [(x.name, x.signalparam) for x in self.eventsFired]
+                    yield hold, self, 1
+                    
+        class Caller(Process):
+            def __init__(self,**vars):
+                Process.__init__(self,**vars)
+            def calling(self):
+                while True:
+                    signal1.signal('wake up!')
+                    print '%s: signal 1 has occurred'%now()
+                    yield hold, self, 10
+                    signal2.signal('and again')
+                    signal2.signal('sig 2 again')
+                    print '%s: signal1, signal2 have occurred'%now()
+                    yield hold, self, 10
+        print'\n+++testSimEvents output'
+        s=SimulationTrace()
+        s.initialize()
+        signal1 = SimEvent('signal 1',sim=s)
+        signal2 = SimEvent('signal 2',sim=s)
+        signal1.signal('startup1')
+        signal2.signal('startup2')
+        w1 = Waiter(name='waiting for signal 1',sim=s)
+        s.activate(w1, w1.waiting(signal1))
+        w2 = Waiter(name='waiting for signal 2',sim=s)
+        s.activate(w2, w2.waiting(signal2))
+        w3 = Waiter(name='also waiting for signal 2',sim=s)
+        s.activate(w3, w3.waiting(signal2))
+        w4 = ORWaiter(name='waiting for either signal 1 or signal 2',sim=s)
+        s.activate(w4, w4.waiting([signal1, signal2]),prior = True)
+        c = Caller(name='Caller',sim=s)
+        s.activate(c, c.calling())
+        print s.simulate(until = 100)
+        
+    def testwaituntil():
+        """
+        Demo of waitUntil capability.
+    
+        Scenario:
+        Three workers require sets of tools to do their jobs. Tools are shared,
+        scarce resources for which they compete.
+        """
+        class Worker(Process):
+            def __init__(self, name, heNeeds = [],sim=None):
+                Process.__init__(self, name,sim=sim)
+                self.heNeeds = heNeeds
+            def work(self):
+                def workerNeeds():
+                    for item in self.heNeeds:
+                        if item.n == 0:
+                            return False
+                    return True
+                    
+                while self.sim.now() < 8 * 60:
+                    yield waituntil, self, workerNeeds
+                    for item in self.heNeeds:
+                        yield request, self, item
+                    print '%s %s has %s and starts job' % (self.sim.now(),self.name,
+                        [x.name for x in self.heNeeds])
+                    yield hold, self, random.uniform(10, 30)
+                    for item in self.heNeeds:
+                        yield release, self, item
+                    yield hold, self, 2 #rest
+                    
+        print '\n+++ nwaituntil demo output'
+        random.seed(12345)
+        s=SimulationTrace()
+        s.initialize()
+        brush = Resource(capacity = 1, name = 'brush',sim=s)
+        ladder = Resource(capacity = 2, name = 'ladder',sim=s)
+        hammer = Resource(capacity = 1, name = 'hammer',sim=s)
+        saw = Resource(capacity = 1, name = 'saw',sim=s)
+        painter = Worker('painter',[brush, ladder],sim=s)
+        s.activate(painter, painter.work())
+        roofer = Worker('roofer',[hammer, ladder, ladder],sim=s)
+        s.activate(roofer, roofer.work())
+        treeguy = Worker('treeguy',[saw, ladder],sim=s)
+        s.activate(treeguy, treeguy.work())
+        for who in (painter, roofer, treeguy):
+            print '%s needs %s for his job' %\
+                  (who.name,[x.name for x in who.heNeeds])
+        print
+        print s.simulate(until = 9 * 60)
+        
+    ## -------------------------------------------------------------
+    ##                    TEST COMPOUND 'YIELD REQUEST' COMMANDS
+    ## -------------------------------------------------------------
+    
+    ## -------------------------------------------------------------
+    ##             TEST 'yield (request, self, res),(hold, self, delay)'
+    ##                   == timeout renege
+    ## -------------------------------------------------------------
+    
+    class JobTO(Process):
+       """ Job class for testing timeout reneging
+       """
+       def __init__(self, server = None, name = '',sim=None):
+            Process.__init__(self, name,sim=sim)
+            self.res = server
+            self.gotResource = None
+            
+       def execute(self, timeout, usetime):       
+            yield (request, self, self.res),(hold, self, timeout)
+            if self.acquired(self.res):
+                self.gotResource = True
+                yield hold, self, usetime
+                yield release, self, self.res
+            else:
+                self.gotResource = False
+                
+    
+    def testNoTimeout():
+        """Test that resource gets acquired without timeout
+        """
+        s=SimulationTrace()
+        s.initialize()
+        res = Resource(name = 'Server', capacity = 1,sim=s)
+        usetime = 5
+        timeout = 1000000
+        j1 = JobTO(server = res, name = 'Job_1',sim=s)
+        s.activate(j1, j1.execute(timeout = timeout, usetime = usetime))
+        j2 = JobTO(server = res, name = 'Job_2',sim=s)
+        s.activate(j2, j2.execute(timeout = timeout, usetime = usetime))
+        s.simulate(until = 2 * usetime)
+        assert s.now() == 2 * usetime, 'time not == 2 * usetime'
+        assert j1.gotResource and j2.gotResource,\
+            'at least one job failed to get resource'
+        assert not (res.waitQ or res.activeQ),\
+            'job waiting or using resource'
+                
+    def testTimeout1():
+        """Test that timeout occurs when resource busy
+        """
+        s=SimulationTrace()
+        s.initialize()
+        res = Resource(name = 'Server', capacity = 1, monitored = True,sim=s)
+        usetime = 5
+        timeout = 3
+        j1 = JobTO(server = res, name = 'Job_1',sim=s)
+        s.activate(j1, j1.execute(timeout = timeout, usetime = usetime))
+        j2 = JobTO(server = res, name = 'Job_2',sim=s)
+        s.activate(j2, j2.execute(timeout = timeout, usetime = usetime))
+        s.simulate(until = 2 * usetime)
+        assert(s.now() == usetime),'time not == usetime'
+        assert(j1.gotResource),'Job_1 did not get resource'
+        assert(not j2.gotResource),'Job_2 did not renege'
+        assert not (res.waitQ or res.activeQ),\
+            'job waiting or using resource'
+    
+    def testTimeout2():
+        """Test that timeout occurs when resource has no capacity free
+        """
+        s=SimulationTrace()
+        s.initialize()
+        res = Resource(name = 'Server', capacity = 0,sim=s)
+        usetime = 5
+        timeout = 3
+        j1 = JobTO(server = res, name = 'Job_1',sim=s)
+        s.activate(j1, j1.execute(timeout = timeout, usetime = usetime))
+        j2 = JobTO(server = res, name = 'Job_2',sim=s)
+        s.activate(j2, j2.execute(timeout = timeout, usetime = usetime))
+        s.simulate(until = 2 * usetime)
+        assert s.now() == timeout, 'time %s not == timeout'%now()
+        assert not j1.gotResource, 'Job_1 got resource'
+        assert not j2.gotResource, 'Job_2 got resource'
+        assert not (res.waitQ or res.activeQ),\
+            'job waiting or using resource'  
+    
+    ## ------------------------------------------------------------------
+    ##             TEST 'yield (request, self, res),(waitevent, self, event)'
+    ##                   == event renege
+    ## ------------------------------------------------------------------
+    class JobEvt(Process):
+       """ Job class for testing event reneging
+       """
+       def __init__(self, server = None, name = '',sim=None):
+            Process.__init__(self, name,sim=sim)
+            self.res = server
+            self.gotResource = None
+            
+       def execute(self, event, usetime):       
+            yield (request, self, self.res),(waitevent, self, event)
+            if self.acquired(self.res):
+                self.gotResource = True
+                yield hold, self, usetime
+                yield release, self, self.res
+            else:
+                self.gotResource = False
+                
+    class JobEvtMulti(Process):
+       """ Job class for testing event reneging with multi - event lists
+       """
+       def __init__(self, server = None, name = '',sim=None):
+            Process.__init__(self, name,sim=sim)
+            self.res = server
+            self.gotResource = None
+            
+       def execute(self, eventlist, usetime):       
+            yield (request, self, self.res),(waitevent, self, eventlist)
+            if self.acquired(self.res):
+                self.gotResource = True
+                yield hold, self, usetime
+                yield release, self, self.res
+            else:
+                self.gotResource = False
+                
+    class FireEvent(Process):
+        """Fires reneging event
+        """
+        def __init__(self,**vars):
+            Process.__init__(self,**vars)
+        def fire(self, fireDelay, event):
+            yield hold, self, fireDelay
+            event.signal()
+                
+    def testNoEvent():
+        """Test that processes acquire resource normally if no event fires
+        """
+        s=SimulationTrace()
+        s.initialize()
+        res = Resource(name = 'Server', capacity = 1,sim=s)
+        event = SimEvent(name='Renege_trigger',sim=s) #never gets fired
+        usetime = 5
+        j1 = JobEvt(server = res, name = 'Job_1',sim=s)
+        s.activate(j1, j1.execute(event = event, usetime = usetime))
+        j2 = JobEvt(server = res, name = 'Job_2',sim=s)
+        s.activate(j2, j2.execute(event = event, usetime = usetime))
+        s.simulate(until = 2 * usetime)
+        # Both jobs should get server (in sequence)
+        assert s.now() == 2 * usetime, 'time not == 2 * usetime'
+        assert j1.gotResource and j2.gotResource,\
+            'at least one job failed to get resource'
+        assert not (res.waitQ or res.activeQ),\
+            'job waiting or using resource'
+     
+    def testWaitEvent1():
+        """Test that signalled event leads to renege when resource busy
+        """
+        s=SimulationTrace()
+        s.initialize()
+        res = Resource(name = 'Server', capacity = 1,sim=s)
+        event = SimEvent('Renege_trigger',sim=s)
+        usetime = 5
+        eventtime = 1
+        j1 = JobEvt(server = res, name = 'Job_1',sim=s)
+        s.activate(j1, j1.execute(event = event, usetime = usetime))
+        j2 = JobEvt(server = res, name = 'Job_2',sim=s)
+        s.activate(j2, j2.execute(event = event, usetime = usetime))
+        f = FireEvent(name = 'FireEvent',sim=s)
+        s.activate(f, f.fire(fireDelay = eventtime, event = event))
+        s.simulate(until = 2 * usetime)
+        # Job_1 should get server, Job_2 renege
+        assert(s.now() == usetime),'time not == usetime'
+        assert(j1.gotResource),'Job_1 did not get resource'
+        assert(not j2.gotResource),'Job_2 did not renege'
+        assert not (res.waitQ or res.activeQ),\
+            'job waiting or using resource'
+                
+    def testWaitEvent2():
+        """Test that renege - triggering event can be one of an event list
+        """
+        s=SimulationTrace()
+        s.initialize()
+        res = Resource(name = 'Server', capacity = 1,sim=s)
+        event1 = SimEvent('Renege_trigger_1',sim=s)
+        event2 = SimEvent('Renege_trigger_2',sim=s)
+        usetime = 5
+        eventtime = 1 #for both events
+        j1 = JobEvtMulti(server = res, name = 'Job_1',sim=s)
+        s.activate(j1, j1.execute(eventlist = [event1, event2],usetime = usetime))
+        j2 = JobEvtMulti(server = res, name = 'Job_2',sim=s)
+        s.activate(j2, j2.execute(eventlist = [event1, event2],usetime = usetime))
+        f1 = FireEvent(name = 'FireEvent_1',sim=s)
+        s.activate(f1, f1.fire(fireDelay = eventtime, event = event1))
+        f2 = FireEvent(name = 'FireEvent_2',sim=s)
+        s.activate(f2, f2.fire(fireDelay = eventtime, event = event2))
+        s.simulate(until = 2 * usetime)
+        # Job_1 should get server, Job_2 should renege
+        assert(s.now() == usetime),'time not == usetime'
+        assert(j1.gotResource),'Job_1 did not get resource'
+        assert(not j2.gotResource),'Job_2 did not renege'
+        assert not (res.waitQ or res.activeQ),\
+            'job waiting or using resource'
+            
+    testNoTimeout()
+    testTimeout1()
+    testTimeout2()
+    testNoEvent()
+    testWaitEvent1()
+    testWaitEvent2()
+    test_demo()
+    test_interrupt()
+    testSimEvents()
+    testwaituntil()    
