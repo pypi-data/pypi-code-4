@@ -1,0 +1,1 @@
+from connecteur_intracursus import JalonConnecteurIntracursus
