@@ -1,0 +1,10 @@
+__version__ = "0.1.13"
+__git_commiter_name__ = "Tal Yalon"
+__git_commiter_email__ = "tal.yalon@gmail.com"
+__git_branch__ = '(Not currently on any branch)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '47969b574a0e152973d8bf849e247f2917c86ef1'
+__git_head_subject__ = "Fixed a file descriptor corruption where closing the fd didn't set it to -1 and then the SyslogWriter tried to write/close/do-bad-things with a fd it doesn't own anymore."
+__git_head_message__ = 'So if the file descriptor was closed (but not set to -1) and someone else opened a new socket/file/etc. and received the same fd (very likely) SyslogWriter did aweful things with that fd causing all sorts of bizarre behaviors.'
+__git_dirty_diff__ = ''
