@@ -1,0 +1,3 @@
+import rambo
+
+rambo.main()
