@@ -1,0 +1,2 @@
+class MockError(Exception):
+	pass
