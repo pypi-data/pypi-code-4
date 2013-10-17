@@ -1,0 +1,10 @@
+__version__ = "0.0.15"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(detached from v0.0.15)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '4858ec168b70e4ad74c78cdf014cc123d1f1f527'
+__git_head_subject__ = 'Finished release v0.0.15.'
+__git_head_message__ = '* release/v0.0.15:\n  add missing dependency\n  continue with new project structure\n  continue with new project structure\n  update travis.yml\n  update travis.yml\n  convert to projector structure'
+__git_dirty_diff__ = ''
