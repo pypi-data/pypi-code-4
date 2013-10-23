@@ -1,0 +1,16 @@
+from distutils.core import setup
+import penn
+
+setup(
+    name='PennSDK',
+    description='Python tools for building Penn-related applications',
+    author='PennApps Labs',
+    author_email='pennappslabs@gmail.com',
+    version=penn.__version__,
+    packages=['penn'],
+    license=open('LICENSE.txt').read(),
+    long_description=open('README.md').read(),
+    install_requires=[
+        'requests==1.2.3'
+    ]
+)
