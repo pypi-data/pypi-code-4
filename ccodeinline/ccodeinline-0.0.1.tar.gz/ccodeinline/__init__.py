@@ -1,0 +1,5 @@
+__version__ = '0.0.1'
+__author__  = 'Maxiste Deams/Patrick Riendeau < maxistedeams@gmail.com >'
+__license__ = 'OpenBSD'
+__version__ = '0.0.1'
+__date__ = '28 October 2013'
