@@ -1,0 +1,314 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, with_statement
+
+import os
+import unittest
+import logging
+import time
+import kaptan
+from .. import Window, config, exc
+from ..workspacebuilder import WorkspaceBuilder
+from .helpers import TmuxTestCase
+
+logger = logging.getLogger(__name__)
+
+
+class TwoPaneTest(TmuxTestCase):
+
+    yaml_config = '''
+    session_name: sampleconfig
+    start_directory: '~'
+    windows:
+    - layout: main-vertical
+      panes:
+      - shell_command:
+        - vim
+        start_directory: '~'
+      - shell_command:
+        - echo "hey"
+      window_name: editor
+    - panes:
+      - shell_command:
+        - tail -F /var/log/syslog
+        start_directory: /var/log
+      window_name: logging
+    - window_name: test
+      panes:
+      - shell_command:
+        - htop
+    '''
+
+    def test_split_windows(self):
+        s = self.session
+        sconfig = kaptan.Kaptan(handler='yaml')
+        sconfig = sconfig.import_config(self.yaml_config).get()
+
+        builder = WorkspaceBuilder(sconf=sconfig)
+
+        window_count = len(self.session._windows)  # current window count
+        self.assertEqual(len(s._windows), window_count)
+        for w, wconf in builder.iter_create_windows(s):
+            window_pane_count = len(w._panes)
+            for p in builder.iter_create_panes(w, wconf):
+                p = p
+                self.assertEqual(len(s._windows), window_count)
+            self.assertIsInstance(w, Window)
+
+            self.assertEqual(len(s._windows), window_count)
+            window_count += 1
+
+
+class ThreePaneTest(TmuxTestCase):
+
+    yaml_config = '''
+    session_name: sampleconfig
+    start_directory: '~'
+    windows:
+    - window_name: test
+      layout: main-horizontal
+      panes:
+      - shell_command:
+        - vim
+        start_directory: '~'
+      - shell_command:
+        - echo "hey"
+      - shell_command:
+        - echo "moo"
+    '''
+
+    def test_split_windows(self):
+        s = self.session
+        sconfig = kaptan.Kaptan(handler='yaml')
+        sconfig = sconfig.import_config(self.yaml_config).get()
+
+        builder = WorkspaceBuilder(sconf=sconfig)
+
+        window_count = len(self.session._windows)  # current window count
+        self.assertEqual(len(s._windows), window_count)
+        for w, wconf in builder.iter_create_windows(s):
+
+            window_pane_count = len(w._panes)
+            for p in builder.iter_create_panes(w, wconf):
+                p = p
+                self.assertEqual(len(s._windows), window_count)
+            self.assertIsInstance(w, Window)
+
+            self.assertEqual(len(s._windows), window_count)
+            window_count += 1
+            w.set_window_option('main-pane-height', 50)
+            w.select_layout(wconf['layout'])
+
+
+class FocusAndPaneIndexTest(TmuxTestCase):
+
+    yaml_config = '''
+    session_name: sampleconfig
+    start_directory: '~'
+    windows:
+    - window_name: focused window
+      layout: main-horizontal
+      focus: true
+      panes:
+      - shell_command:
+        - vim
+        start_directory: '~'
+      - shell_command:
+        - echo "hey"
+      - shell_command:
+        - echo "moo"
+        - top
+        focus: true
+    - window_name: window 2
+      panes:
+      - shell_command:
+        - vim
+        start_directory: '~'
+        focus: true
+      - shell_command:
+        - echo "hey"
+      - shell_command:
+        - echo "moo"
+
+    '''
+
+    def test_split_windows(self):
+        s = self.session
+        sconfig = kaptan.Kaptan(handler='yaml')
+        sconfig = sconfig.import_config(self.yaml_config).get()
+        import sys
+
+        builder = WorkspaceBuilder(sconf=sconfig)
+
+        builder.build(session=self.session)
+
+        self.assertEqual(
+            self.session.attached_window().get('window_name'),
+            'focused window'
+        )
+
+        pane_base_index = self.session.attached_window().show_window_option(
+            'pane-base-index'
+        )
+
+        if not pane_base_index:
+            pane_base_index = 0
+        else:
+            pane_base_index = int(pane_base_index)
+
+        # get the pane index for each pane
+        pane_base_indexes = []
+        for pane in self.session.attached_window().panes:
+            pane_base_indexes.append(int(pane.get('pane_index')))
+
+        pane_indexes_should_be = [pane_base_index + x for x in range(0, 3)]
+        self.assertListEqual(pane_indexes_should_be, pane_base_indexes)
+
+
+class WindowOptions(TmuxTestCase):
+
+    yaml_config = '''
+    session_name: test window options
+    start_directory: '~'
+    windows:
+    - layout: main-horizontal
+      options:
+        main-pane-height: 30
+      panes:
+      - shell_command:
+        - vim
+        start_directory: '~'
+      - shell_command:
+        - echo "hey"
+      - shell_command:
+        - echo "moo"
+      window_name: editor
+    '''
+
+    def test_window_options(self):
+        s = self.session
+        sconfig = kaptan.Kaptan(handler='yaml')
+        sconfig = sconfig.import_config(self.yaml_config).get()
+
+        builder = WorkspaceBuilder(sconf=sconfig)
+
+        window_count = len(self.session._windows)  # current window count
+        self.assertEqual(len(s._windows), window_count)
+        for w, wconf in builder.iter_create_windows(s):
+
+            window_pane_count = len(w._panes)
+            for p in builder.iter_create_panes(w, wconf):
+                p = p
+                self.assertEqual(len(s._windows), window_count)
+            self.assertIsInstance(w, Window)
+            self.assertEqual(w.show_window_option('main-pane-height'), 30)
+
+            self.assertEqual(len(s._windows), window_count)
+            window_count += 1
+            w.select_layout(wconf['layout'])
+
+
+class WindowAutomaticRename(TmuxTestCase):
+
+    yaml_config = '''
+    session_name: test window options
+    start_directory: '~'
+    windows:
+    - layout: main-horizontal
+      options:
+        automatic-rename: on
+      panes:
+      - shell_command:
+        - man echo
+        start_directory: '~'
+      - shell_command:
+        - echo "hey"
+      - shell_command:
+        - echo "moo"
+    '''
+
+    def test_automatic_rename_option(self):
+        """ with option automatic-rename: on. """
+        s = self.session
+        sconfig = kaptan.Kaptan(handler='yaml')
+        sconfig = sconfig.import_config(self.yaml_config).get()
+
+        builder = WorkspaceBuilder(sconf=sconfig)
+
+        window_count = len(self.session._windows)  # current window count
+        self.assertEqual(len(s._windows), window_count)
+        for w, wconf in builder.iter_create_windows(s):
+
+            window_pane_count = len(w._panes)
+            for p in builder.iter_create_panes(w, wconf):
+                p = p
+                self.assertEqual(len(s._windows), window_count)
+            self.assertIsInstance(w, Window)
+            self.assertEqual(w.show_window_option('automatic-rename'), 'on')
+
+            self.assertEqual(len(s._windows), window_count)
+
+            window_count += 1
+            w.select_layout(wconf['layout'])
+
+        w = s.attached_window()
+
+        for i in range(30):
+            w = s.attached_window()
+            if w['window_name'] == 'man':
+                break
+            time.sleep(.01)
+
+        self.assertEqual(w.get('window_name'), 'man')
+
+        w.select_pane('-D')
+        for i in range(30):
+            w = s.attached_window()
+            if w['window_name'] != 'man':
+                break
+            time.sleep(.01)
+
+        self.assertNotEqual(w.get('window_name'), 'man')
+
+
+class TestsToDo(object):
+
+    def test_uses_first_window_if_exists(self):
+        '''
+        if the session is already on the first window, use that.
+
+        this is useful if the user is already inside of a tmux session
+        '''
+
+    def test_same_session_already_exists_unclean(self):
+        '''
+        raise exception if session_name already exists and has multiple
+        windows the user could potentially be offered to add a cli argument to
+        override the session_name in config. Perhaps `-n` could be used to load
+        a config from file with overridden session_name.
+        '''
+
+    def test_inside_tmux_same_session_already_exists(self):
+        ''' same as above, but when the config file and the current $TMUX
+        session are the same '''
+
+    def test_inside_tmux_no_session_name_exists(self):
+        '''
+        if the session_name doesn't currently exist and the user is in tmux
+        rename the current session by the config / -n and build there.
+        '''
+
+    def testPaneProportions(self):
+        """
+        todo. checking the proportions of a pane on a grid allows
+        us to verify a window has been build correctly without
+        needing to see the tmux session itself.
+
+        we expect panes in a list to be ordered and show up to
+        their corresponding pane_index.
+        """
+        pass
+
+
+if __name__ == '__main__':
+    # t.socket_name = 'tmuxp_test'
+    unittest.main()
