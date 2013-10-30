@@ -1,0 +1,76 @@
+from distutils.core import setup
+
+setup(
+    name='SmartyBot',
+    version='0.1.2',
+    author='Vasili Pascal',
+    author_email='vs@webdirect.md',
+    packages=['smartybot'],
+    url='http://pypi.python.org/pypi/SmartyBot/',
+    license='LICENSE.txt',
+    description="beginner's toy bot in python.",
+    long_description=open('README.txt').read(),
+    install_requires=[
+       "python-dateutil==2.1"
+       , "BeautifulSoup==3.2.1"
+       , "IMAPClient==0.9.1"
+       , "MySQL-python==1.2.4"
+       , "PAM==0.4.2"
+       , "PIL==1.1.7"
+       , "Pillow==2.1.0"
+       , "PyAudio==0.2.7"
+       , "Pygments==1.6"
+       , "SOAPpy==0.12.5"
+       , "SQLAlchemy==0.8.2"
+       , "Skype4Py==1.0.35"
+       , "Unipath==1.0"
+       , "alembic==0.6.0"
+       , "beautifulsoup4==4.2.1"
+       , "boto==2.9.6"
+       , "configparser==3.3.0r2"
+       , "docutils==0.10"
+       , "html5lib==1.0b2"
+       , "httplib2==0.8"
+       , "isodate==0.4.9"
+       , "itsdangerous==0.22"
+       , "keyring==1.5"
+       , "kitchen==1.1.1"
+       , "lxml==3.1.0"
+       , "mechanize==0.2.5"
+       , "nltk==2.0.4"
+       , "nose==1.3.0"
+       , "numpy==1.7.1"
+       , "oauth==1.0.1"
+       , "oauth2==1.5.211"
+       , "oauthlib==0.4.2"
+       , "parallel==0.2.5"
+       , "parsedatetime==1.1.2"
+       , "pyOpenSSL==0.13"
+       , "pycrypto==2.6"
+       , "pycurl==7.19.0"
+       , "pyflakes==0.7.3"
+       , "pygeoip==0.2.6"
+       , "pyjulius==0.3"
+       , "pymongo==2.5.2"
+       , "pyparsing==1.5.7"
+       , "pyserial==2.6"
+       , "python-crontab==1.4.1"
+       , "python-linkedin==4.0"
+       , "python-twitter==1.0"
+       , "pyzmq==13.1.0"
+       , "redis==2.7.6"
+       , "requests==1.2.0"
+       , "requests-oauthlib==0.3.3"
+       , "simplejson==3.3.0"
+       , "six==1.3.0"
+       , "sleekxmpp==1.1.11"
+       , "testtools==0.9.32"
+       , "twilio==3.5.1"
+       , "twill==0.9"
+       , "unittest2==0.5.1"
+       , "zmqpy==0.3.2"
+       , "pyasn1==0.1.7"
+       , "pyasn1-modules==0.0.5"
+       , "sure==1.2.2"
+       , "httpretty==0.6.0"]
+)
