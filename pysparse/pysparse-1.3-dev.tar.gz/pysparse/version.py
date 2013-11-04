@@ -1,0 +1,3 @@
+
+## THIS FILE IS GENERATED FROM PYSPARSE SETUP.PY
+version = '1.3-dev'
