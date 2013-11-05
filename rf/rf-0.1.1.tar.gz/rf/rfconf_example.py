@@ -1,0 +1,6 @@
+data_path = 'None'
+data = '{eventid}/BH_RAW/{net}.{sta}.{loc}.{cha}'
+output_path = 'None'
+rf = '{eventid}/RF/{net}.{sta}.{loc}.{cha}'
+mout = '{eventid}/RF_{motype}MOUT/{net}.{sta}.{loc}.{cha}'
+mean = 'RF_SUM/{net}.{sta}.{loc}.{cha}'
