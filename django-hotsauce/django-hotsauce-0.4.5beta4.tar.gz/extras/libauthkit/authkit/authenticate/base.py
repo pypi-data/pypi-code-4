@@ -1,0 +1,404 @@
+#!/usr/bin/env python
+# Authentication glue code 
+# For documentation and updates see "docs/authentication/middleware.rst"
+
+import types
+import warnings
+import logging
+import os
+import os.path
+
+# Paste artefacts
+from paste.util.import_string import eval_import
+from paste.deploy.converters import asbool
+
+# Authkit
+from multi import MultiHandler, status_checker
+from authkit.permissions import RemoteUser, no_authkit_users_in_environ, AuthKitConfigError
+
+# Setuptools
+from pkg_resources import iter_entry_points, load_entry_point
+
+# Setting up logging
+log = logging.getLogger('authkit.authenticate')
+log.setLevel(logging.INFO)
+    
+def strip_base(conf, base):
+    result = {}
+    for key in conf.keys():
+        if key.startswith(base):
+            result[key[len(base):]] = conf[key]
+    return result
+
+def swap_underscore(*confs):
+    results = []
+    for conf in confs:
+        result = {}
+        for k,v in conf.items():
+            result[k.replace('.','_')] = v
+        results.append(result)
+    return results
+
+def valid_password(environ, username, password): 
+    """ 
+    A function which can be used with the ``basic`` and ``form`` authentication
+    methods to validate a username and password.
+
+    This implementation is used by default if no other method is specified. It
+    checks the for an ``authkit.users`` object present in the ``environ``
+    dictionary under the ``authkit.users`` key and uses the information there
+    to validate the username and password.
+
+    In this implementation usernames are case insensitive and passwords are
+    case sensitive. The function returns ``True`` if the user ``username`` has
+    the password specified by ``password`` and returns ``False`` if the user
+    doesn't exist or the password is incorrect.
+
+    If you create and specify your own ``authkit.users`` object with the same
+    API, this method will also work correctly with your custom solution. See
+    the AuthKit manual for information on the user management api, how to
+    specify a different ``authkit.users`` object (say to read user information
+    from a file rather than have it specified directly) and for information on
+    how to create your own ``Users`` objects.
+    """
+    log.debug("[authkit] valid_password called. username: %s", username)
+    try:
+        users = environ['authkit.users']
+    except KeyError:
+        # XXX auth errors should be properly caught
+        raise no_authkit_users_in_environ
+    else:
+        if not users.user_exists(username):
+            return False
+        elif users.user_has_password(username, password):
+            return True
+        else:
+            return False
+
+def digest_password(environ, realm, username):
+    """
+    This is similar to ``valid_password()`` but is used with the ``digest``
+    authentication method and rather than checking a username and password and
+    returning ``True`` or ``False`` it takes the realm and username as input,
+    looks up the correct password and and returns a digest by calling the
+    ``authkit.authenticate.digest.digest_password()`` function with the
+    parameters ``realm``, ``username`` and ``password`` respectively. The
+    digest returned is then compared with the one submitted by the browser.
+
+    As with ``valid_password()`` this method is designed to work with the user
+    management API so you can use it with ``authkit.users`` objects or your own
+    custom ``Users`` objects. Alternatively you can specify your own function
+    which can lookup the password in whichever way you prefer, perhaps from a
+    database or LDAP connection.
+    
+    Only required if you intend to use HTTP digest authentication.
+    """
+    #log.debug(
+    #    "digest_password called. username: %s, realm: %s", username, realm
+    #)
+    if not environ.has_key('authkit.users'):
+        raise no_authkit_users_in_environ
+    users = environ['authkit.users']
+    if users.user_exists(username):
+        password = users.user(username)['password']
+        return digest.digest_password(realm, username, password)
+    # After speaking to Clark Evans who wrote the original code, this is the 
+    # correct thing:
+    return None
+
+class AddUsersObjectToEnviron(object):
+    """Simple middleware which adds a Users object to the environ."""
+    def __init__(self, app, key, value, **kwargs):
+        self.app = app
+        self.data = kwargs.pop('data', {})
+        self.kwargs = kwargs
+        self.key = key
+        self.value = value
+
+    def __call__(self, environ, start_response):
+        store = {}
+        if self.data is not None:
+            store.update(self.data)
+        store['environ'] = environ
+        environ[self.key] = self.value(data=self.data)
+        return self.app(environ, start_response)
+
+def get_authenticate_function(app, auth_conf, fmt, prefix,
+    user_object_cls='authkit.users.UsersFromString'):
+    """
+    Sets up the users object, adds the middleware to add the users object
+    to the environ and then returns authenticate methods to check a password
+    and a digest.
+    """
+    function = None
+    users = None
+    if len(auth_conf) < 1:
+        raise AuthKitConfigError('Expected at least one authenticate key, not'
+                                 ' %r'%auth_conf)
+                                 
+    if auth_conf.keys() == ['function']:
+        function = auth_conf['function']
+        if isinstance(function, (str, unicode)):
+            function = eval_import(function)
+    else:
+        #print auth_conf
+        user_conf = strip_base(auth_conf, 'user.')
+        if not user_conf:
+            raise AuthKitConfigError('No authenticate function or users specified')
+        else:
+            if user_conf.has_key('encrypt'):
+                if fmt == 'digest':
+                    raise AuthKitConfigError('Encryption cannot be used with '
+                        'digest authentication because the server needs to '
+                        'know the password to generate the digest, try basic '
+                        'or form and cookie authentication instead')
+                enc_func = eval_import(user_conf['encrypt'])
+                secret = user_conf.get('encrypt.secret','')
+                def encrypt(password):
+                    return enc_func(password, secret)
+            else:
+                encrypt = None
+            
+            if 'type' in user_conf.keys():
+                user_object = user_conf['type']
+                #print 'type: %r' % type(user_object)
+            
+            assert isinstance(user_object_cls, (str, unicode)), "Error: expecting a string, not %s" % type(user_object_cls)
+            user_object = eval_import(user_object_cls)
+            
+            log.debug("User object type: %r" % user_object)
+
+
+            app = AddUsersObjectToEnviron(
+                app, 
+                'authkit.users', 
+                user_object, 
+                encrypt=encrypt, 
+                data=user_conf.get('data', ''),
+            )
+            
+            if fmt == 'basic':
+                function = valid_password
+                log.debug("valid_password chosen %r", function)
+            elif fmt == 'digest':
+                log.debug("digest_password chosen %r", function)
+                function = digest_password
+            else:
+                #raise AuthKitConfigError('Invalid format for authenticate function %r' % fmt)
+                function = user_object.user_has_password
+                log.debug("using custom authentication function = %r" % function)
+    return app, function, users
+
+def get_template(template_conf, prefix):
+    """
+    Another utility method to reduce code duplication. This function parses a
+    template from one of the available template options:
+
+    ``string``
+        The template as a string
+        
+    ``file``
+        A file containing the template
+
+    ``obj``
+        A paste eval_import string or callable which returns a string
+
+    authkit.form.template.string = 
+    authkit.form.template.file = 
+    authkit.form.template.obj =
+
+    """
+    template = None
+    if len(template_conf) != 1:
+        raise AuthKitConfigError('Expected one template entry, not %r' % 
+                                 (', '.join(template_conf.keys())))
+    if template_conf.keys()[0] not in ['string', 'file', 'obj']:
+        raise AuthKitConfigError("Template option can only be 'string', 'file'"
+                                 " or 'obj'")
+    if template_conf.keys()[0] == 'string':
+        template = template_conf['string']
+    elif template_conf.keys()[0] == 'file':
+        if not os.path.exists(template_conf['file']):
+            raise AuthKitConfigError('No such file %r exists. It was specified'
+                                     ' by config option %r' % 
+                                     (template_conf['file'], prefix+'file'))
+        fp = open(template_conf['file'], 'r')
+        template = fp.read()
+        fp.close()
+        if not template:
+            raise AuthKitConfigError('No data in template file %s specified by'
+                                     ' config option %r' % 
+                                     (template_conf['file'], prefix+'file'))
+    elif template_conf.keys()[0] == 'obj':
+        template = eval_import(template_conf['obj'])
+        if not template:
+            raise AuthKitConfigError('No data in template obj %s specified by '
+                                     'config option %r' % 
+                                     (template_conf['obj'], prefix+'obj'))
+    else:
+        raise AuthKitConfigError("Unknown option %r" % 
+                                 (prefix+template_conf.keys()[0]))
+    if not template:
+        raise AuthKitConfigError("The template loaded did not contain any data")
+    if isinstance(template, (str, unicode)):
+        def render_template():
+            return template
+        return render_template
+    return template
+    
+#
+# Main middleware creator 
+#
+
+class AddToEnviron(object):
+    """
+    Simple middleware which adds a key to the ``environ`` dictionary.
+    
+    Used to add the ``authkit.users`` key to the environ when this is
+    appropriate.
+    """
+    def __init__(self, app, key, obj):
+        self.app = app
+        self.key = key
+        self.object = obj # user_object?
+        
+    def __call__(self, environ, start_response):
+        environ[self.key] = self.object
+        #import pdb; pdb.set_trace()
+        return self.app(environ, start_response)
+
+class AddDictToEnviron(object):
+    """Simple middleware which adds the values of a dict to the environ."""
+    def __init__(self, app, dct):
+        self.app = app
+        self.dct = dct
+        
+    def __call__(self, environ, start_response):
+        environ.update(self.dct)
+        return self.app(environ, start_response)
+
+class RequireEnvironKey(object):
+    def __init__(self, app, key, missing_error=None):
+        self.app = app
+        self.key = key
+        self.missing_error = missing_error or \
+            'Missing the key %(key)s from the environ. Have you setup the ' \
+            'correct middleware?'
+        
+    def __call__(self, environ, start_response):
+        if not environ.has_key(self.key):
+            raise Exception(self.missing_error%{'key':self.key})
+        return self.app(environ, start_response)
+
+def get_methods():
+    """Get a dictionary of the available method entry points."""
+    available_methods = {}
+    for method_handler in iter_entry_points(group='authkit.method', name=None):
+        available_methods[method_handler.name] = method_handler
+    return available_methods
+
+def load_method(name, from_these=None):
+    if from_these:
+        return from_these[name].load()
+    else:
+        return load_entry_point('AuthKit','authkit.method',name)
+
+def load_config(options, app_conf, prefix):
+    merged = strip_base(app_conf, prefix)
+    
+    # Now override the auth_conf_options with the manaully specified options
+    for key, value in options.items():
+        if merged.has_key(key):
+            warnings.warn(
+                'Key %s with value %r set in the config file is being ' + \
+                'replaced with value %r set in the application'%(
+                    key,
+                    auth_conf_options[key],
+                    value
+                )   
+            )
+        merged[key.replace('_','.')] = value
+    return merged
+
+class HTTPExceptionHandler(object):
+    """
+    catches exceptions and turns them into proper HTTP responses
+
+    Attributes:
+
+       ``warning_level``
+           This attribute determines for what exceptions a stack
+           trace is kept for lower level reporting; by default, it
+           only keeps stack trace for 5xx, HTTPServerError exceptions.
+           To keep a stack trace for 4xx, HTTPClientError exceptions,
+           set this to 400.
+
+    This middleware catches any exceptions (which are subclasses of
+    ``HTTPException``) and turns them into proper HTTP responses.
+    Note if the headers have already been sent, the stack trace is
+    always maintained as this indicates a programming error.
+
+    Note that you must raise the exception before returning the
+    app_iter, and you cannot use this with generator apps that don't
+    raise an exception until after their app_iter is iterated over.
+    
+    .. note::
+        
+        This originally came from paste.httpexceptions.HTTPExceptionHandler
+        and is patched with comments below for compatibility with 
+        webob + Python 2.4
+    
+    """
+
+    def __init__(self, application, warning_level=None):
+        #assert not warning_level or ( warning_level > 99 and
+        #                              warning_level < 600)
+        
+        self.warning_level = warning_level or 500
+        self.application = application
+
+    def __call__(self, environ, start_response):
+                    
+        # Note that catching the webob exception is for Python 2.4 support.
+        # In the brave new world of new-style exceptions (derived from object)
+        # multiple inheritance works like you'd expect: the NotAuthenticatedError 
+        # is caught because it descends from the past and webob exceptions.
+        # In the old world (2.4-), the webob exception needs to be in the catch list
+         
+        #Deprecated paste artefacts - Not used anymore 
+        #environ['paste.httpexceptions'] = self
+        #environ.setdefault('paste.expected_exceptions',
+        #                   []).extend([paste.httpexceptions.HTTPException,
+        #                               webob.exc.HTTPException])
+        try:
+            return self.application(environ, start_response)        
+        except:        
+            raise
+
+def middleware(app, 
+    middleware_cls,
+    auth_conf={}, 
+    prefix='authkit.', 
+   handle_httpexception=True, 
+   **options):   
+    """
+    This middleware sets up the AuthKit authentication agent and its use and 
+    options are described in detail in the AuthKit manual.
+   
+    Note: All option names specified in the config file will have their prefix
+    removed and any ``.`` characters replaced by ``_`` before the options
+    specified by ``options`` are merged in. This means that the the option
+    ``authkit.cookie.name`` specified in a config file sets the same options as
+    ``cookie_name`` specified directly as an option.
+    """
+    #if handle_httpexception:
+    #    app = HTTPExceptionHandler(app)
+    
+    app = middleware_cls(
+        app,
+        load_config(options, auth_conf, prefix),
+        'cookie',
+        #prefix='authkit.'
+    )
+    return app           
+

@@ -1,0 +1,2 @@
+VERSION = '0.4.5'
+BASEVERSION = VERSION + '-beta3'

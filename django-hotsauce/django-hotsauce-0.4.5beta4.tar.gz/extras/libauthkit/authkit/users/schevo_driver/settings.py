@@ -1,0 +1,3 @@
+
+DATABASE_NAME = 'accounts'
+DATABASE_CONFIG_SECTION = 'auth'
