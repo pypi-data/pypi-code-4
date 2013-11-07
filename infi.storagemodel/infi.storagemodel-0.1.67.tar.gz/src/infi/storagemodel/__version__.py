@@ -1,0 +1,10 @@
+__version__ = "0.1.67"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(detached from v0.1.67)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '76f07072b445eadcb3c70f886ca474e3da73c975'
+__git_head_subject__ = 'Finished release v0.1.67.'
+__git_head_message__ = '* release/v0.1.67:\n  STORAGEMODEL-232\n  Unfreezing dependencies'
+__git_dirty_diff__ = ''
