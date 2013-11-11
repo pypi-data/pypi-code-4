@@ -1,0 +1,15 @@
+from zope import schema
+from zope.interface import Interface
+
+from tecnoteca.googlemap import googlemapMessageFactory as _
+
+
+class ITTGoogleMapMarker(Interface):
+    """Google Map Marker"""
+
+    # -*- schema definition goes here -*-
+    Text = schema.Text(
+        title=_(u"Text"),
+        required=False,
+        description=_(u"Marker text"),
+    )
