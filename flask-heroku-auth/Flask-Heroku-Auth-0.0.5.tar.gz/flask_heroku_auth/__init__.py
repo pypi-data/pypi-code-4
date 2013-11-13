@@ -1,0 +1,1 @@
+from flask_heroku_auth.core import HerokuAuth
