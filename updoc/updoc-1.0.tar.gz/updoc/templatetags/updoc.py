@@ -1,0 +1,27 @@
+#coding=utf-8
+from django.utils.translation import ugettext as _
+from django import template
+from django.template.defaultfilters import floatformat
+
+register = template.Library()
+
+@register.filter
+def si_unit(value, unit=''):
+    if value is None:
+        return u''
+    sign = ''
+    if value < 0:
+        sign = '-'
+        value = -value
+    prefix = ''
+    if 1. > value > 0.:
+        for prefix in ('', 'm', u'µ', 'n', 'p', 'f', 'a', 'z'):
+            if value > 1.:
+                break
+            value *= 1000.
+    else:
+        for prefix in ('', 'k', 'M', 'G', 'T', 'P', 'E', 'Z'):
+            if value < 1000.:
+                break
+            value /= 1000.
+    return u'%s%s %s%s' % (sign, floatformat(value, -2), prefix, _(unit))
