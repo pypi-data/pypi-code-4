@@ -1,0 +1,10 @@
+__version__ = "0.0.16"
+__git_commiter_name__ = "Guy Rozendorn"
+__git_commiter_email__ = "guy@rzn.co.il"
+__git_branch__ = '(detached from v0.0.16)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '2d2c463d3411e4b16b5ce8b9cb1e47537193d5ca'
+__git_head_subject__ = 'TRIVIAL using infi.monotonic_time'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
