@@ -1,0 +1,74 @@
+# ==================================================================================================
+# Copyright 2011 Twitter, Inc.
+# --------------------------------------------------------------------------------------------------
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this work except in compliance with the License.
+# You may obtain a copy of the License in the LICENSE file, or at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==================================================================================================
+
+from twitter.common.lang import Compatibility
+from twitter.pants.base import manual
+from twitter.pants.targets.pants_target import Pants
+from twitter.pants.targets.repository import Repository
+
+
+@manual.builddict(tags=["jvm"])
+class Artifact(object):
+  """Represents a jvm artifact ala maven or ivy.
+
+  Used in the ``provides`` parameter to *jvm*\_library targets."""
+
+  def __init__(self, org, name, repo, description=None):
+    """
+    :param string org: Organization of this artifact, or groupId in maven parlance.
+    :param string name: Name of the artifact, or artifactId in maven parlance.
+    :param repo: :class:`twitter.pants.targets.repository.Repository`
+      this artifact is published to.
+    :param string description: Description of this artifact.
+    """
+    if not isinstance(org, Compatibility.string):
+      raise ValueError("org must be %s but was %s" % (Compatibility.string, org))
+    if not isinstance(name, Compatibility.string):
+      raise ValueError("name must be %s but was %s" % (Compatibility.string, name))
+    if not isinstance(repo, (Pants, Repository)):
+      raise ValueError("repo must be %s or %s but was %s" % (
+        Repository.__name__, Pants.__name__, repo))
+    if description is not None and not isinstance(description, Compatibility.string):
+      raise ValueError(
+        "description must be None or %s but was %s" % (Compatibility.string, description))
+
+    self.org = org
+    self.name = name
+    self.rev = None
+    repos = list(repo.resolve())
+    if len(repos) != 1:
+      raise Exception("An artifact must have exactly 1 repo, given: %s" % repos)
+    self.repo = repos[0]
+    self.description = description
+
+  def __eq__(self, other):
+    result = other and (
+      type(other) == Artifact) and (
+      self.org == other.org) and (
+      self.name == other.name)
+    return result
+
+  def __hash__(self):
+    value = 17
+    value *= 37 + hash(self.org)
+    value *= 37 + hash(self.name)
+    return value
+
+  def __ne__(self, other):
+    return not self.__eq__(other)
+
+  def __repr__(self):
+    return "%s-%s -> %s" % (self.org, self.name, self.repo)
