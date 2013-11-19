@@ -1,0 +1,42 @@
+# ==================================================================================================
+# Copyright 2011 Twitter, Inc.
+# --------------------------------------------------------------------------------------------------
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this work except in compliance with the License.
+# You may obtain a copy of the License in the LICENSE file, or at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==================================================================================================
+
+from twitter.common.collections import OrderedSet
+from twitter.pants.base import manual
+from .python_requirement import PythonRequirement
+from .python_target import PythonTarget
+
+
+@manual.builddict(tags=["python"])
+class PythonThriftLibrary(PythonTarget):
+  """Generates a stub Python library from thrift IDL files."""
+
+  def __init__(self, name,
+               sources=None,
+               resources=None,
+               dependencies=None,
+               provides=None):
+    """
+    :param name: Name of library
+    :param source: thrift source file
+    :param resources: non-Python resources, e.g. templates, keys, other data (it is
+      recommended that your application uses the pkgutil package to access these
+      resources in a .zip-module friendly way.)
+    :param dependencies: List of :class:`twitter.pants.base.target.Target` instances
+      this target depends on.
+    :type dependencies: list of targets
+    """
+    PythonTarget.__init__(self, name, sources, resources, dependencies, provides)
