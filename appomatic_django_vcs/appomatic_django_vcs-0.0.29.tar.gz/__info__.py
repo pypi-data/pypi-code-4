@@ -1,0 +1,10 @@
+version = "0.0.29"
+author = "RedHog (Egil Moeller)"
+author_email = "egil.moller@freecode.no"
+license = "GPL"
+url = "http://github.com/redhog/appomatic"
+name = "appomatic_django_vcs"
+description = "A way to integrate VCS-agnostic repository browsing into Django apps."
+keywords = "appomatic django-vcs"
+url = "http://code.google.com/p/django-vcs/"
+install_requires = ['django_vcs', 'dulwich', 'Pygments']
