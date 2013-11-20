@@ -1,0 +1,10 @@
+__version__ = "0.6.15"
+__git_commiter_name__ = "Tal Yalon"
+__git_commiter_email__ = "yalon@infinidat.com"
+__git_branch__ = '(detached from v0.6.15)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '966b149ab275268288a742b284c046da5590ccc3'
+__git_head_subject__ = 'added be_uint_field and le_uint_field to instruct.buffer macros'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
