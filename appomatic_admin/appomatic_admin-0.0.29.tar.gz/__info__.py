@@ -1,0 +1,8 @@
+version = "0.0.29"
+author = "RedHog (Egil Moeller)"
+author_email = "egil.moller@freecode.no"
+license = "GPL"
+url = "http://github.com/redhog/appomatic"
+name = "appomatic_admin"
+description = "Enables the django site admin"
+keywords = "appomatic admin"
