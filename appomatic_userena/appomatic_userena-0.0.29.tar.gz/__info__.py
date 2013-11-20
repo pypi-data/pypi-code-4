@@ -1,0 +1,10 @@
+version = "0.0.29"
+author = "RedHog (Egil Moeller)"
+author_email = "egil.moller@freecode.no"
+license = "GPL"
+url = "http://github.com/redhog/appomatic"
+name = "appomatic_userena"
+description = "Userena is a Django application that supplies your Django project with full account management."
+keywords = "appomatic django-userena"
+url = "http://www.django-userena.org/"
+install_requires = ['django-userena']
