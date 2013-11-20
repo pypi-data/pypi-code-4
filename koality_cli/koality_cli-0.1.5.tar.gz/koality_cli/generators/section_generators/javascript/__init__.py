@@ -1,0 +1,3 @@
+from .package_generator import JavaScriptPackageSectionGenerator
+from .compile_scripts_generator import JavaScriptCompileScriptsSectionGenerator
+from .test_factory_generator import JavaScriptTestFactorySectionGenerator
