@@ -1,0 +1,10 @@
+version = "0.0.29"
+author = "RedHog (Egil Moeller)"
+author_email = "egil.moller@freecode.no"
+license = "GPL"
+url = "http://github.com/redhog/appomatic"
+name = "appomatic_tagging"
+description = "A generic tagging application for Django projects"
+keywords = "appomatic django-tagging"
+url = "http://code.google.com/p/django-tagging/"
+install_requires = ['django-tagging']
