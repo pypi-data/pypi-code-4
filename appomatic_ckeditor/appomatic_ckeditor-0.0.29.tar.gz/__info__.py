@@ -1,0 +1,10 @@
+version = "0.0.29"
+author = "RedHog (Egil Moeller)"
+author_email = "egil.moller@freecode.no"
+license = "GPL"
+url = "http://github.com/redhog/appomatic"
+name = "appomatic_ckeditor"
+description = "Django admin CKEditor integration."
+keywords = "appomatic ckeditor"
+url = "http://github.com/shaunsephton/django-ckeditor"
+install_requires = ['django-ckeditor']
