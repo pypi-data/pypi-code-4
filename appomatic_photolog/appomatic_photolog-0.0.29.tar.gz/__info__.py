@@ -1,0 +1,10 @@
+version = "0.0.29"
+author = "RedHog (Egil Moeller)"
+author_email = "egil.moller@freecode.no"
+license = "GPL"
+url = "http://github.com/redhog/appomatic"
+name = "appomatic_photolog"
+description = "Photologue is a reusable Django application that provides powerful image management and manipulation functionality as well as a complete photo gallery solution."
+keywords = "appomatic photologue"
+url = "http://code.google.com/p/django-photologue/"
+install_requires = ['django-photologue']
