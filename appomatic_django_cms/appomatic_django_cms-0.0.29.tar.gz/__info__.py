@@ -1,0 +1,10 @@
+version = "0.0.29"
+author = "RedHog (Egil Moeller)"
+author_email = "egil.moller@freecode.no"
+license = "GPL"
+url = "http://github.com/redhog/appomatic"
+name = "appomatic_django_cms"
+description = "Get the pony powered CMS With Frontend-Editing"
+keywords = "appomatic django-cms"
+url = "https://www.django-cms.org"
+install_requires = ['django-cms']
