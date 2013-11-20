@@ -1,0 +1,10 @@
+version = "0.0.29"
+author = "RedHog (Egil Moeller)"
+author_email = "egil.moller@freecode.no"
+license = "GPL"
+url = "http://github.com/redhog/appomatic"
+name = "appomatic_cmsplugin_phlog"
+description = "Integrates django-cms and Photologue"
+keywords = "appomatic django-cms photologue"
+url = "https://github.com/benliles/cmsplugin-phlog"
+install_requires = ['appomatic_django_cms=='+version, 'appomatic_photolog=='+version, 'cmsplugin-phlog']
