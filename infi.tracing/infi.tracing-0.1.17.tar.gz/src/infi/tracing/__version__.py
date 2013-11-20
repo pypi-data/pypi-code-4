@@ -1,0 +1,10 @@
+__version__ = "0.1.17"
+__git_commiter_name__ = "Tal Yalon"
+__git_commiter_email__ = "tal.yalon@gmail.com"
+__git_branch__ = '(detached from v0.1.17)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '29c5e8109080805e7e428c397f31fc96f0337d37'
+__git_head_subject__ = 'added pid when logging message overflows'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
