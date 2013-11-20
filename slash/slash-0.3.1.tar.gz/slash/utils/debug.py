@@ -1,0 +1,53 @@
+import sys
+from ..conf import config
+from ..exceptions import SkipTest
+
+def _debugger(debug_function_str, exc_info_transform=None):
+    module_name, function_name = debug_function_str.rsplit(".", 1)
+    def debugger(exc_info):
+        try:
+            module = __import__(module_name, fromlist=[''])
+        except ImportError:
+            raise NotImplementedError() # pragma: no cover
+        func = getattr(module, function_name)
+        if exc_info_transform is not None:
+            exc_info = exc_info_transform(exc_info)
+        func(*exc_info) # pylint: disable=star-args
+    debugger.__name__ = debug_function_str
+    return debugger
+
+def _only_tb(exc_info):
+    return (exc_info[2],)
+
+def _tb_type_value(exc_info):
+    return (exc_info[2], exc_info[0], exc_info[1])
+
+_KNOWN_DEBUGGERS = [
+    # order is important here!
+    _debugger("pudb.post_mortem", _tb_type_value),
+    _debugger("ipdb.post_mortem", _only_tb),
+    _debugger("pdb.post_mortem", _only_tb),
+    ]
+
+
+def debug_if_needed(exc_info=None):
+
+    if not config.root.debug.enabled:
+        return
+    if exc_info is None:
+        exc_info = sys.exc_info()
+    if exc_info[0] is SkipTest and not config.root.debug.debug_skips:
+        return
+
+    launch_debugger(exc_info)
+
+def launch_debugger(exc_info):
+    for debug_func in _KNOWN_DEBUGGERS:
+        try:
+            debug_func(exc_info)
+        except NotImplementedError:
+            continue
+        else:
+            break
+    else:
+        raise NotImplementedError("No debug function available") # pragma: no cover
