@@ -1,0 +1,10 @@
+version = "0.0.29"
+author = "RedHog (Egil Moeller)"
+author_email = "egil.moller@freecode.no"
+license = "GPL"
+url = "http://github.com/redhog/appomatic"
+name = "appomatic_autocomplete"
+description = "AutoComplete for ForeignKey and ManyToManyField."
+keywords = "appomatic autocomplete foreignkeys"
+url = "https://github.com/redhog/django-autocomplete"
+install_requires = ['django_autocomplete_foreignkey']
