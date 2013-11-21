@@ -1,0 +1,3 @@
+#
+class BaseAction(object):
+    pass
