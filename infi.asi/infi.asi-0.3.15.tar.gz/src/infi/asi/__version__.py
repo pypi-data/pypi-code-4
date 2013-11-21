@@ -1,0 +1,10 @@
+__version__ = "0.3.15"
+__git_commiter_name__ = "Tal Yalon"
+__git_commiter_email__ = "tal.yalon@gmail.com"
+__git_branch__ = '(detached from v0.3.15)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = 'dcfe1c7535a8d252c0556c000befe92275c00121'
+__git_head_subject__ = 'STORAGEMODEL-536 fixed bad name reference'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
