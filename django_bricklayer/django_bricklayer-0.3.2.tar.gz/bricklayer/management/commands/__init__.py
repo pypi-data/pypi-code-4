@@ -1,0 +1,7 @@
+from bricklayer.management.commands.generatetest import Command as GenerateTestCommand
+from bricklayer.management.commands.generateadmin import Command as GenerateAdminCommand
+from bricklayer.management.commands.generatecommand import Command as GenerateCommandCommand
+from bricklayer.management.commands.generatecrud import Command as GenerateCrudCommand
+from bricklayer.management.commands.generateform import Command as GenerateFormCommand
+from bricklayer.management.commands.generatetestpackage import Command as GenerateTestPackageCommand
+from bricklayer.management.commands.testcommand import Command as TestCommand
