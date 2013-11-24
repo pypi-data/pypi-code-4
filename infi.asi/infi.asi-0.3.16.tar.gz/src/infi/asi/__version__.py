@@ -1,0 +1,10 @@
+__version__ = "0.3.16"
+__git_commiter_name__ = "Eyal Gindi"
+__git_commiter_email__ = "eyalg@infinidat.com"
+__git_branch__ = '(detached from v0.3.16)'
+__git_remote_tracking_branch__ = '(No remote tracking)'
+__git_remote_url__ = '(Not remote tracking)'
+__git_head_hash__ = '1be7236d7ec065d66d224a4cf94d7b9dd50e3740'
+__git_head_subject__ = 'added missing import for newly added type be_uint_field'
+__git_head_message__ = ''
+__git_dirty_diff__ = ''
